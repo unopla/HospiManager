@@ -146,7 +146,7 @@ subtitulo = criar_titulo(
 # IMAGEM DECORATIVA
 # =============================
 try:
-    pil_img = Image.open("hospital_team.jpg").resize((400, 260))
+    pil_img = Image.open("img/hospital_team.jpg").resize((400, 260))
     tk_img = ImageTk.PhotoImage(pil_img)
     img_label = ctk.CTkLabel(painel, image=tk_img, text="")
     img_label.image = tk_img
