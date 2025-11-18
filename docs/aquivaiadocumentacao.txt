@@ -1,1 +1,1 @@
-aqui vai documentação, manual, licensa, etc
+O HospiManager é um programa que utilizara do sistema 
