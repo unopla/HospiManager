@@ -41,14 +41,25 @@ def maximizar():
 barra = ctk.CTkFrame(app, height=45, fg_color="#1b3e90")
 barra.pack(fill="x", side="top")
 
-# Título no canto esquerdo
+# ========= TÍTULO CENTRALIZADO DA BARRA SUPERIOR =========
 titulo_barra = ctk.CTkLabel(
     barra,
     text="HospiManager — Sistema Hospitalar",
     text_color="white",
     font=("Segoe UI", 16, "bold")
 )
-titulo_barra.place(x=15, y=10)
+titulo_barra.place(y=10)
+
+# Centralização REAL após atualizar tamanho da barra
+barra.update()
+titulo_barra.update()
+
+largura_barra = barra.winfo_width()
+largura_titulo = titulo_barra.winfo_width()
+x_central = (largura_barra - largura_titulo) // 2
+
+titulo_barra.place(x=x_central)
+
 
 # Função para arrastar a janela
 def iniciar_move(e):
@@ -135,11 +146,11 @@ subtitulo = criar_titulo(
 # IMAGEM DECORATIVA
 # =============================
 try:
-    imagem = Image.open("hospital_team.jpg").resize((620, 390))
-    img = ImageTk.PhotoImage(imagem)
-    imagem_label = ctk.CTkLabel(painel, image=img, text="")
-    imagem_label.image = img
-    imagem_label.place(x=1220, y=50)
+    pil_img = Image.open("hospital_team.jpg").resize((400, 260))
+    tk_img = ImageTk.PhotoImage(pil_img)
+    img_label = ctk.CTkLabel(painel, image=tk_img, text="")
+    img_label.image = tk_img
+    img_label.place(x=820, y=20)
 except:
     ctk.CTkLabel(
         painel,
