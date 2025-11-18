@@ -1,1 +1,1 @@
-Aqui vai licensa, se decidam oq botaraaaaaa
+Aqui vai licensa, se decidam oq botar
