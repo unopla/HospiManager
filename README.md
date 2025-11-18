@@ -80,4 +80,8 @@ O sistema deve conter:
 ---
 ## Entrega
 * Todos os arquivos, pastas do projeto deverão estar em um único arquivo compactado (RAR, ZIP, 7Z, ARJ, etc) com o nome padrão de arquivo: PROVA_PY_GRUPO_NOMEAL1_NOMEAL2_NOMEAL3.*
+<<<<<<< Updated upstream
 * Este arquivo deve ser colocado em uma pasta no FTP e informar o professor quem entregou o a prova no nome do grupo.
+=======
+* Este arquivo deve ser colocado em uma pasta no FTP e informar o professor quem entregou o a prova no nome do grupo.
+>>>>>>> Stashed changes
