@@ -8,7 +8,7 @@ administrativo no qual o responsável pode cadastrar, editar ou excluir usuário
 Durante o desenvolvimento, a equipe dividiu as responsabilidades de forma a garantir maior organização e produtividade. Kelvin
 assumiu o planejamento do banco de dados e parte do backend, criando as estruturas responsáveis pelas informações do sistema e
 pela comunicação com o servidor. Matheus Girelli concentrou-se na lógica interna do backend, assegurando o funcionamento correto
-das operações e integrações. Gabriel ficou encarregado do frontend, projetando e implementando a interface visual, buscando torná-
+das operações e integrações. Gabriel  CARALHO ENFIAR A PORRA DO NOME INTEIRO ficou encarregado do frontend, projetando e implementando a interface visual, buscando torná-
 la clara, moderna e intuitiva. Já Mateus Marafon dedicou-se à elaboração da documentação e do manual de uso, assegurando que o 
 sistema pudesse ser compreendido e utilizado de forma correta por todos os perfis.
 
