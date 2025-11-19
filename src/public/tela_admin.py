@@ -1,6 +1,5 @@
-import customtkinter as ctk
-
 def criar_tela_admin(dados_usuario):
+    import customtkinter as ctk
     janela = ctk.CTk()
     janela.title("Admin — Sistema Hospitalar")
     janela.geometry("600x400")
