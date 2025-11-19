@@ -3,7 +3,7 @@ from tkinter import messagebox
 from db import conectar
 from datetime import datetime
 
-def criar_tela_enfermeiro(dados_usuario):
+def criar_tela_enfermeiro(nome_usuario):
     janela = ctk.CTk()
     janela.title("Enfermeiro — Sistema Hospitalar")
     janela.geometry("1000x700")

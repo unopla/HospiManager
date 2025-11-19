@@ -19,8 +19,8 @@ class TelaLogin(ctk.CTk):
         super().__init__()
 
         self.title("Login — Sistema Hospitalar")
-        self.geometry("600x480")
-        self.resizable(False, False)
+        self.state("zoomed")  # Abre maximizada
+        self.resizable(True, True)  # Permite redimensionar
         self.configure(fg_color="#e9eef5")
 
         # =============================
@@ -110,25 +110,18 @@ class TelaLogin(ctk.CTk):
 
         cargo = resultado["cargo"]
 
-        # Abre a tela conforme o cargo
+        # Abre a tela conforme o cargo, passando a própria janela
         if cargo == "Admin":
-            abrir_tela_admin(resultado["nome"])
-            self.destroy()
+            abrir_tela_admin(resultado["nome"], self)
         elif cargo == "Medico":
-            abrir_tela_medico(resultado["nome"])
-            self.destroy()
+            abrir_tela_medico(resultado["nome"], self)
         elif cargo == "Enfermeiro":
-            abrir_tela_enfermeiro(resultado["nome"])
-            self.destroy()
+            abrir_tela_enfermeiro(resultado["nome"], self)
         elif cargo == "Recepcao":
-            abrir_tela_recepcao(resultado["nome"])
-            self.destroy()
+            abrir_tela_recepcao(resultado["nome"], self)
         else:
             messagebox.showerror("Erro", "Cargo desconhecido")
             return
-
-        self.destroy()
-
 
 if __name__ == "__main__":
     TelaLogin().mainloop()
