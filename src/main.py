@@ -113,12 +113,16 @@ class TelaLogin(ctk.CTk):
         # Abre a tela conforme o cargo
         if cargo == "Admin":
             abrir_tela_admin(resultado["nome"])
+            self.destroy()
         elif cargo == "Medico":
             abrir_tela_medico(resultado["nome"])
+            self.destroy()
         elif cargo == "Enfermeiro":
             abrir_tela_enfermeiro(resultado["nome"])
+            self.destroy()
         elif cargo == "Recepcao":
             abrir_tela_recepcao(resultado["nome"])
+            self.destroy()
         else:
             messagebox.showerror("Erro", "Cargo desconhecido")
             return
