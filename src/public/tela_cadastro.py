@@ -1,7 +1,10 @@
 def cadastro_paciente():
     import customtkinter as ctk
-    from tkinter import messagebox
-    
+    from tkinter import messagebox, Toplevel
+    from tkcalendar import Calendar
+    from db import conectar
+    from datetime import datetime
+
     # =============================
     # CONFIGURAÇÃO GERAL
     # =============================
@@ -57,9 +60,7 @@ def cadastro_paciente():
     # =============================
     # ÁREA PRINCIPAL
     # =============================
-    principal = ctk.CTkFrame(
-        app, fg_color=HOSPITAL_BG, corner_radius=0
-    )
+    principal = ctk.CTkFrame(app, fg_color=HOSPITAL_BG, corner_radius=0)
     principal.pack(side="right", fill="both", expand=True, padx=20, pady=20)
 
     titulo = ctk.CTkLabel(
@@ -71,11 +72,7 @@ def cadastro_paciente():
     titulo.pack(pady=10)
 
     # Card do formulário
-    card = ctk.CTkFrame(
-        principal,
-        fg_color=HOSPITAL_CARD,
-        corner_radius=20
-    )
+    card = ctk.CTkFrame(principal, fg_color=HOSPITAL_CARD, corner_radius=20)
     card.pack(pady=10, padx=30)
 
     form = ctk.CTkFrame(card, fg_color=HOSPITAL_CARD)
@@ -93,54 +90,146 @@ def cadastro_paciente():
     ent_nome = ctk.CTkEntry(form, width=350, height=35, corner_radius=10)
     ent_nome.grid(row=0, column=1, padx=20, pady=8)
 
-    # Idade
-    label("Idade:").grid(row=1, column=0, sticky="w", pady=8)
-    ent_idade = ctk.CTkEntry(form, width=120, height=35, corner_radius=10)
-    ent_idade.grid(row=1, column=1, padx=20, pady=8, sticky="w")
+    # =============================
+    # CAMPO DE DATA — CALENDÁRIO QUE NÃO FECHA
+    # =============================
+
+    def abrir_calendario():
+        popup = Toplevel(app)
+        popup.title("Selecionar Data")
+        popup.geometry("300x260")
+        popup.resizable(False, False)
+        popup.grab_set()  # impede perder o foco
+
+        cal = Calendar(
+            popup,
+            selectmode="day",
+            locale="pt_BR",
+            date_pattern="dd/mm/yyyy"
+        )
+        cal.pack(pady=10)
+
+        def confirmar():
+            data = cal.get_date()
+            ent_data_nascimento.delete(0, "end")
+            ent_data_nascimento.insert(0, data)
+            popup.destroy()
+
+        ctk.CTkButton(popup, text="Selecionar", command=confirmar).pack(pady=5)
+
+        # EVITA FECHAR A JANELA AO TROCAR MÊS
+        popup.bind("<FocusOut>", lambda e: popup.focus_force())
+
+    label("Data de Nascimento:").grid(row=1, column=0, sticky="w", pady=8)
+
+    ent_data_nascimento = ctk.CTkEntry(form, width=150)
+    ent_data_nascimento.grid(row=1, column=1, padx=20, pady=8, sticky="w")
+
+    ent_data_nascimento.bind("<Button-1>", lambda e: abrir_calendario())
+
+    # ====================
+    # CAMPOS NORMALMENTE
+    # ====================
 
     # CPF
     label("CPF:").grid(row=2, column=0, sticky="w", pady=8)
-    ent_cpf = ctk.CTkEntry(form, width=200, height=35, corner_radius=10)
+    ent_cpf = ctk.CTkEntry(form, width=200)
     ent_cpf.grid(row=2, column=1, padx=20, pady=8, sticky="w")
 
     # Telefone
     label("Telefone:").grid(row=3, column=0, sticky="w", pady=8)
-    ent_tel = ctk.CTkEntry(form, width=200, height=35, corner_radius=10)
+    ent_tel = ctk.CTkEntry(form, width=200)
     ent_tel.grid(row=3, column=1, padx=20, pady=8, sticky="w")
 
     # Endereço
     label("Endereço:").grid(row=4, column=0, sticky="w", pady=8)
-    ent_end = ctk.CTkEntry(form, width=350, height=35, corner_radius=10)
+    ent_end = ctk.CTkEntry(form, width=350)
     ent_end.grid(row=4, column=1, padx=20, pady=8)
 
-    # Sintomas
-    label("Sintomas:").grid(row=5, column=0, sticky="nw", pady=8)
-    ent_sint = ctk.CTkTextbox(
-        form,
-        width=350,
-        height=120,
-        corner_radius=10
-    )
-    ent_sint.grid(row=5, column=1, padx=20, pady=8)
+    # Sexo
+    label("Sexo:").grid(row=5, column=0, sticky="w", pady=8)
+    ent_sexo = ctk.CTkOptionMenu(form, values=["Masculino", "Feminino", "Outro"], width=200)
+    ent_sexo.grid(row=5, column=1, padx=20, pady=8, sticky="w")
+
+    # Cidade
+    label("Cidade:").grid(row=6, column=0, sticky="w", pady=8)
+    ent_cidade = ctk.CTkEntry(form, width=200)
+    ent_cidade.grid(row=6, column=1, padx=20, pady=8)
+
+    # Estado
+    label("Estado:").grid(row=7, column=0, sticky="w", pady=8)
+    ent_estado = ctk.CTkEntry(form, width=80)
+    ent_estado.grid(row=7, column=1, padx=20, pady=8, sticky="w")
+
+    # Nome do responsável
+    label("Nome do Responsável:").grid(row=8, column=0, sticky="w", pady=8)
+    ent_nome_responsavel = ctk.CTkEntry(form, width=350)
+    ent_nome_responsavel.grid(row=8, column=1, padx=20, pady=8)
+
+    # Telefone do responsável
+    label("Telefone do Responsável:").grid(row=9, column=0, sticky="w", pady=8)
+    ent_tel_responsavel = ctk.CTkEntry(form, width=200)
+    ent_tel_responsavel.grid(row=9, column=1, padx=20, pady=8)
+    
+    label("Alergias (opcional):").grid(row=10, column=0, sticky="w", pady=8)
+    ent_alergias = ctk.CTkEntry(form, width=350)
+    ent_alergias.grid(row=10, column=1, padx=20, pady=8)
+    
+
 
     # =============================
     # FUNÇÃO DE CADASTRO
     # =============================
     def cadastrar():
         nome = ent_nome.get().strip()
-        idade = ent_idade.get().strip()
+        data_nascimento = ent_data_nascimento.get().strip()
         cpf = ent_cpf.get().strip()
+        sexo = ent_sexo.get().strip()
+        telefone = ent_tel.get().strip()
+        endereco = ent_end.get().strip()
+        cidade = ent_cidade.get().strip()
+        estado = ent_estado.get().strip()
+        nome_responsavel = ent_nome_responsavel.get().strip()
+        tel_responsavel = ent_tel_responsavel.get().strip()
+        alergias = ent_alergias.get().strip()
 
-        if nome == "" or idade == "" or cpf == "":
+        if nome == "" or data_nascimento == "" or cpf == "" or sexo == "" or telefone == "" or endereco == "" or cidade == "" or estado == "" or nome_responsavel == "" or tel_responsavel == "":
             messagebox.showerror("Erro", "Preencha todos os campos obrigatórios.")
             return
+        try:
+            data_mysql = datetime.strptime(data_nascimento, "%d/%m/%Y").strftime("%Y-%m-%d")
+        except:
+            messagebox.showerror("Erro", "Data de nascimento inválida!")
+            return
 
-        messagebox.showinfo("Cadastro Concluído", f"Paciente {nome} registrado com sucesso.")
+        conn = conectar()
+        if conn is None:
+            messagebox.showerror("Erro", "Falha ao conectar ao banco de dados.")
+            return
+
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                """
+                INSERT INTO pacientes 
+                (nome, data_nascimento, cpf, sexo, telefone, endereco, cidade, estado, nome_responsavel, telefone_emergencia, alergias)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (nome, data_mysql, cpf, sexo, telefone, endereco, cidade, estado, nome_responsavel, tel_responsavel, alergias)
+            )
+            conn.commit()
+            messagebox.showinfo("Sucesso", "Paciente cadastrado com sucesso!")
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+        finally:
+            cursor.close()
+            conn.close()
 
     # =============================
     # BOTÃO FINAL
     # =============================
-    btn = ctk.CTkButton(
+    ctk.CTkButton(
         principal,
         text="Confirmar Cadastro",
         fg_color=HOSPITAL_BLUE,
@@ -151,7 +240,6 @@ def cadastro_paciente():
         corner_radius=20,
         font=("Arial", 18, "bold"),
         command=cadastrar
-    )
-    btn.pack(pady=25)
+    ).pack(pady=25)
 
     return app
