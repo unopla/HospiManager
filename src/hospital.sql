@@ -226,3 +226,15 @@ CREATE TABLE usuarios (
     senha_hash VARCHAR(255),
     tipo ENUM('Admin', 'Medico', 'Enfermeiro', 'Recepcao')
 );
+
+INSERT INTO usuarios (nome, login, senha_hash, tipo)
+VALUES ('Administrador Geral', 'admin', 'admin123', 'Admin');
+
+INSERT INTO usuarios (nome, login, senha_hash, tipo)
+VALUES ('Dr. João Silva', 'drjoao', 'medico123', 'Medico');
+
+INSERT INTO usuarios (nome, login, senha_hash, tipo)
+VALUES ('Maria Santos', 'maria_enf', 'enfermeira123', 'Enfermeiro');
+
+INSERT INTO usuarios (nome, login, senha_hash, tipo)
+VALUES ('Paulo Souza', 'paulo_rec', 'recepcao123', 'Recepcao');
