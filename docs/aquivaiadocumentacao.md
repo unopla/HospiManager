@@ -8,7 +8,7 @@ A arquitetura também foi pensada para respeitar cargos e responsabilidades, gar
 
 ---
 
-## **🎯 Propósito do Sistema**
+## **Propósito do Sistema**
 
 O HospiManager foi construído sobre quatro pilares centrais:
 
@@ -26,7 +26,7 @@ A estrutura do projeto permite que novos setores, regras, telas e fluxos sejam a
 
 ---
 
-## **📌 Divisão da Equipe**
+## **Divisão da Equipe**
 
 A produção do HospiManager seguiu uma divisão clara de responsabilidades, semelhante a equipes reais de desenvolvimento:
 
@@ -48,7 +48,7 @@ Criou uma documentação clara, objetiva e acessível para novos usuários e adm
 
 ---
 
-## **🗃️ Estrutura do Banco de Dados**
+## **Estrutura do Banco de Dados**
 
 O banco de dados foi projetado para refletir a dinâmica real do ambiente hospitalar. Ele inclui tabelas para:
 
@@ -78,14 +78,14 @@ Após o login, cada usuário é automaticamente encaminhado para as telas corres
 
 A setorização proporciona:
 
-- **🔒 Segurança reforçada**  
-- **⚙️ Fluxo guiado e organizado**  
-- **🧭 Navegação objetiva**  
-- **🩺 Minimização de erros operacionais**  
+- **Segurança reforçada**  
+- **Fluxo guiado e organizado**  
+- **Navegação objetiva**  
+- **Minimização de erros operacionais**  
 
 ---
 
-## **🏥 Conclusão**
+## **Conclusão**
 
 O **HospiManager** se apresenta como uma solução moderna, modular e eficiente para instituições de saúde que buscam:
 
