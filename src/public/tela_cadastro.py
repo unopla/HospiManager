@@ -1,9 +1,10 @@
-def cadastro_paciente():
+def cadastro_paciente(nome_usuario):
     import customtkinter as ctk
     from tkinter import messagebox, Toplevel
     from tkcalendar import Calendar
     from db import conectar
     from datetime import datetime
+    from funcoes_tela import abrir_tela_recepcao
 
     # =============================
     # CONFIGURAÇÃO GERAL
@@ -12,9 +13,9 @@ def cadastro_paciente():
     ctk.set_default_color_theme("blue")
 
     app = ctk.CTk()
+    app.state("zoomed")  # Abre maximizada
     app.title("Hospital São Roque - Recepção")
-    app.geometry("1150x680")
-    app.resizable(False, False)
+    app.resizable(True, True)  # Permite redimensionar
 
     HOSPITAL_BLUE = "#0a74c9"
     HOSPITAL_BLUE_DARK = "#075a99"
@@ -51,11 +52,60 @@ def cadastro_paciente():
             width=180,
             height=42
         )
+        # =============================
+    # FUNÇÃO DE CADASTRO
+    # =============================
+    def cadastrar():
+        nome = ent_nome.get().strip()
+        data_nascimento = ent_data_nascimento.get().strip()
+        cpf = ent_cpf.get().strip()
+        sexo = ent_sexo.get().strip()
+        telefone = ent_tel.get().strip()
+        endereco = ent_end.get().strip()
+        cidade = ent_cidade.get().strip()
+        estado = ent_estado.get().strip()
+        nome_responsavel = ent_nome_responsavel.get().strip()
+        tel_responsavel = ent_tel_responsavel.get().strip()
+        alergias = ent_alergias.get().strip()
 
-    btn_menu("Cadastrar Paciente").pack(pady=10)
-    btn_menu("Lista de Pacientes").pack(pady=10)
-    btn_menu("Horários e Consultas").pack(pady=10)
-    btn_menu("Sair").pack(pady=20)
+        if nome == "" or data_nascimento == "" or cpf == "" or sexo == "" or telefone == "" or endereco == "" or cidade == "" or estado == "" or nome_responsavel == "" or tel_responsavel == "":
+            messagebox.showerror("Erro", "Preencha todos os campos obrigatórios.")
+            return
+        try:
+            data_mysql = datetime.strptime(data_nascimento, "%d/%m/%Y").strftime("%Y-%m-%d")
+        except:
+            messagebox.showerror("Erro", "Data de nascimento inválida!")
+            return
+
+        conn = conectar()
+        if conn is None:
+            messagebox.showerror("Erro", "Falha ao conectar ao banco de dados.")
+            return
+
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                """
+                INSERT INTO pacientes 
+                (nome, data_nascimento, cpf, sexo, telefone, endereco, cidade, estado, nome_responsavel, telefone_emergencia, alergias)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (nome, data_mysql, cpf, sexo, telefone, endereco, cidade, estado, nome_responsavel, tel_responsavel, alergias)
+            )
+            conn.commit()
+            messagebox.showinfo("Sucesso", "Paciente cadastrado com sucesso!")
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+        finally:
+            cursor.close()
+            conn.close()
+    def voltar():
+        abrir_tela_recepcao(nome_usuario,app)
+
+    btn_voltar = btn_menu("Voltar")
+    btn_voltar.configure(command=voltar)  # Aqui você adiciona a função
+    btn_voltar.pack(pady=20)
 
     # =============================
     # ÁREA PRINCIPAL
@@ -173,58 +223,7 @@ def cadastro_paciente():
     
     label("Alergias (opcional):").grid(row=10, column=0, sticky="w", pady=8)
     ent_alergias = ctk.CTkEntry(form, width=350)
-    ent_alergias.grid(row=10, column=1, padx=20, pady=8)
-    
-
-
-    # =============================
-    # FUNÇÃO DE CADASTRO
-    # =============================
-    def cadastrar():
-        nome = ent_nome.get().strip()
-        data_nascimento = ent_data_nascimento.get().strip()
-        cpf = ent_cpf.get().strip()
-        sexo = ent_sexo.get().strip()
-        telefone = ent_tel.get().strip()
-        endereco = ent_end.get().strip()
-        cidade = ent_cidade.get().strip()
-        estado = ent_estado.get().strip()
-        nome_responsavel = ent_nome_responsavel.get().strip()
-        tel_responsavel = ent_tel_responsavel.get().strip()
-        alergias = ent_alergias.get().strip()
-
-        if nome == "" or data_nascimento == "" or cpf == "" or sexo == "" or telefone == "" or endereco == "" or cidade == "" or estado == "" or nome_responsavel == "" or tel_responsavel == "":
-            messagebox.showerror("Erro", "Preencha todos os campos obrigatórios.")
-            return
-        try:
-            data_mysql = datetime.strptime(data_nascimento, "%d/%m/%Y").strftime("%Y-%m-%d")
-        except:
-            messagebox.showerror("Erro", "Data de nascimento inválida!")
-            return
-
-        conn = conectar()
-        if conn is None:
-            messagebox.showerror("Erro", "Falha ao conectar ao banco de dados.")
-            return
-
-        cursor = conn.cursor()
-        try:
-            cursor.execute(
-                """
-                INSERT INTO pacientes 
-                (nome, data_nascimento, cpf, sexo, telefone, endereco, cidade, estado, nome_responsavel, telefone_emergencia, alergias)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """,
-                (nome, data_mysql, cpf, sexo, telefone, endereco, cidade, estado, nome_responsavel, tel_responsavel, alergias)
-            )
-            conn.commit()
-            messagebox.showinfo("Sucesso", "Paciente cadastrado com sucesso!")
-
-        except Exception as e:
-            messagebox.showerror("Erro", str(e))
-        finally:
-            cursor.close()
-            conn.close()
+    ent_alergias.grid(row=10, column=1, padx=20, pady=8)    
 
     # =============================
     # BOTÃO FINAL

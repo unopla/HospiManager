@@ -45,7 +45,7 @@ def criar_tela_recepcao(nome_usuario):
                 btn.configure(fg_color=PALETTE["card"])
 
     def criar_novo_paciente():
-        abrir_tela_cadastro(nome_usuario)
+        abrir_tela_cadastro(nome_usuario,app)
 
     def criar_agendamento():
         messagebox.showinfo("Agenda", "Abrir agenda de atendimentos...")
