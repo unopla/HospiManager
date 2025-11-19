@@ -2,7 +2,12 @@ import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from db import conectar
-from funcoes_tela import abrir_tela_admin, abrir_tela_medico, abrir_tela_enfermeiro, abrir_tela_recepcao
+from funcoes_tela import (
+    abrir_tela_admin,
+    abrir_tela_medico,
+    abrir_tela_enfermeiro,
+    abrir_tela_recepcao
+)
 
 
 ctk.set_appearance_mode("light")
@@ -107,13 +112,17 @@ class TelaLogin(ctk.CTk):
 
         # Abre a tela conforme o cargo
         if cargo == "Admin":
-            abrir_tela_admin(resultado)
+            abrir_tela_admin(resultado["nome"])
+            self.destroy()
         elif cargo == "Medico":
-            abrir_tela_medico(resultado)
+            abrir_tela_medico(resultado["nome"])
+            self.destroy()
         elif cargo == "Enfermeiro":
-            abrir_tela_enfermeiro(resultado)
+            abrir_tela_enfermeiro(resultado["nome"])
+            self.destroy()
         elif cargo == "Recepcao":
-            abrir_tela_recepcao(resultado)
+            abrir_tela_recepcao(resultado["nome"])
+            self.destroy()
         else:
             messagebox.showerror("Erro", "Cargo desconhecido")
             return

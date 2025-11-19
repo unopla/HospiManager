@@ -15,7 +15,6 @@ CREATE TABLE pacientes (
     id_paciente INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(120) NOT NULL,
     cpf VARCHAR(14) UNIQUE,
-    rg VARCHAR(12),
     data_nascimento DATE,
     sexo ENUM('Masculino', 'Feminino', 'Outro') NOT NULL,
     telefone VARCHAR(20),
@@ -23,9 +22,8 @@ CREATE TABLE pacientes (
     nome_responsavel VARCHAR(120),
     endereco VARCHAR(255),
     cidade VARCHAR(100),
-    estado CHAR(2),
+    estado VARCHAR(30),
     alergias TEXT,
-    observacoes_medicas TEXT,
     data_registro DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
