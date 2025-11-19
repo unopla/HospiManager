@@ -1,59 +1,100 @@
 # **HospiManager — Sistema de Atendimento Hospitalar**
 
-O **HospiManager** foi idealizado como uma ferramenta capaz de tornar mais ágil e organizado o trabalho de médicos, enfermeiros e recepcionistas dentro do ambiente hospitalar.  
-O sistema conta com uma estrutura inspirada em modelos de **classificação de urgência**, permitindo separar atendimentos por níveis de prioridade e garantindo o encaminhamento adequado de cada paciente.
+O **HospiManager** é um sistema desenvolvido para organizar, padronizar e agilizar o fluxo de atendimento em ambientes hospitalares.  
+Ele foi projetado para lidar com um dos maiores desafios dessas instituições: **gerenciar pacientes, prioridades clínicas e diferentes perfis de profissionais**, garantindo precisão, segurança e velocidade em cada etapa do processo.
 
-Além disso, o programa possui setores distintos para cada tipo de profissional, garantindo que cada usuário acesse apenas as funcionalidades adequadas ao seu papel.  
-Há também um **módulo administrativo**, no qual o responsável pode cadastrar, editar ou excluir usuários, mantendo controle total da aplicação.
+Inspirado em protocolos reais de **classificação de urgência**, o sistema permite identificar rapidamente o nível de prioridade de cada paciente, direcionando os atendimentos de forma inteligente e eficiente.  
+A arquitetura também foi pensada para respeitar cargos e responsabilidades, garantindo que cada usuário visualize apenas as funções adequadas ao seu papel.
+
+---
+
+## **🎯 Propósito do Sistema**
+
+O HospiManager foi construído sobre quatro pilares centrais:
+
+### **1. Eficiência Operacional**
+O sistema reduz o tempo entre triagem, registro, encaminhamento e atendimento, tornando o fluxo mais rápido e menos suscetível a erros.
+
+### **2. Segurança e Controle de Acesso**
+Profissionais só acessam as funcionalidades correspondentes ao seu cargo, protegendo informações sensíveis e evitando ações indevidas.
+
+### **3. Histórico Confiável**
+Todos os registros permanecem documentados e organizados, permitindo auditorias, revisões e rastreamento de informações essenciais.
+
+### **4. Escalabilidade**
+A estrutura do projeto permite que novos setores, regras, telas e fluxos sejam adicionados sem retrabalho ou quebra do sistema.
 
 ---
 
 ## **📌 Divisão da Equipe**
 
-Durante o desenvolvimento, a equipe distribuiu tarefas para otimizar o fluxo de trabalho:
+A produção do HospiManager seguiu uma divisão clara de responsabilidades, semelhante a equipes reais de desenvolvimento:
 
-- **Kelvin Arcari** — Planejamento do banco de dados e parte do backend, definindo estruturas e comunicação com o servidor.
-- **Matheus Girelli** — Lógica interna do backend, garantindo o funcionamento correto das operações e integrações.
-- **Gabriel Zarpelon** — Desenvolvimento do frontend, criando uma interface clara, moderna e intuitiva.
-- **Mateus Marafon** — Elaboração da documentação e manual de uso, assegurando clareza e boa compreensão do sistema.
+### **Kelvin Arcari — Arquitetura de Dados & Backend**
+Planejou toda a estrutura do banco de dados e desenvolveu parte do backend responsável pela comunicação com o sistema.  
+É o responsável pela base estrutural que sustenta o projeto.
+
+### **Matheus Girelli — Núcleo Lógico do Backend**
+Implementou a lógica interna do sistema, garantindo que triagens, cadastros, permissões e atualizações funcionem de forma integrada e confiável.  
+Transformou regras hospitalares em código consistente.
+
+### **Gabriel Zarpelon — Frontend & Interface**
+Desenvolveu a interface utilizando Python + CustomTkinter, priorizando clareza visual, boa navegação e acessibilidade.  
+Criou telas organizadas, funcionais e compatíveis com o fluxo de um hospital.
+
+### **Mateus Marafon — Documentação & Manual Técnico**
+Responsável por registrar, organizar e explicar o funcionamento do sistema.  
+Criou uma documentação clara, objetiva e acessível para novos usuários e administradores.
 
 ---
 
 ## **🗃️ Estrutura do Banco de Dados**
 
-O projeto se apoia em um banco de dados robusto e expansível, com tabelas para:
+O banco de dados foi projetado para refletir a dinâmica real do ambiente hospitalar. Ele inclui tabelas para:
 
-- Cadastro de pacientes  
-- Triagens completas  
-- Registros de atendimentos  
-- Gerenciamento de profissionais  
-- Tabelas de urgência  
-- Setores hospitalares  
-- Especialidades médicas  
+- **Pacientes**  
+- **Triagens**  
+- **Registros de Atendimento**  
+- **Usuários e Permissões**  
+- **Setores Hospitalares**  
+- **Especialidades Médicas**  
+- **Classificação de Urgência**  
 
-Essas estruturas permitem rastrear todo o fluxo hospitalar, desde a recepção até o encerramento do atendimento, mantendo histórico completo e organizado.
+Cada entidade possui relações lógicas que permitem acompanhar o fluxo completo de um paciente, desde a entrada até o encerramento do atendimento.  
+A estrutura foi planejada para ser robusta e expansível, permitindo o crescimento do sistema sem reestruturações profundas.
 
 ---
 
-## **💻 Interface e Acesso**
+## **💻 Interface e Fluxo de Uso**
 
-A navegação é realizada por uma interface construída em **Python com CustomTkinter**, onde cada usuário tem acesso apenas às telas correspondentes ao seu cargo, validadas pelo módulo de login.
+Desenvolvido com **Python + CustomTkinter**, o sistema oferece uma interface:
 
-Essa setorização garante:
+- Intuitiva  
+- Segura  
+- Focada nas rotinas de cada cargo  
+- Livre de informações desnecessárias  
 
-- Segurança  
-- Clareza  
-- Navegação objetiva  
-- Redução de erros operacionais  
+Após o login, cada usuário é automaticamente encaminhado para as telas correspondentes ao seu cargo, garantindo fluxo simples e sem confusões.
+
+A setorização proporciona:
+
+- **🔒 Segurança reforçada**  
+- **⚙️ Fluxo guiado e organizado**  
+- **🧭 Navegação objetiva**  
+- **🩺 Minimização de erros operacionais**  
 
 ---
 
 ## **🏥 Conclusão**
 
-Com essa base técnica e funcional, o **HospiManager** se consolida como um sistema hospitalar **modular, escalável e seguro**, preparado para lidar com necessidades reais de:
+O **HospiManager** se apresenta como uma solução moderna, modular e eficiente para instituições de saúde que buscam:
 
 - Organização  
-- Registro  
-- Priorização de atendimentos  
+- Registro claro  
+- Priorização inteligente  
+- Segurança de dados  
+- Fluxos bem estruturados  
 
-A união entre divisão inteligente de tarefas, estrutura sólida de dados e interface eficiente resulta em uma solução clara, prática e confiável para profissionais e administradores.
+A combinação entre uma arquitetura sólida, lógica consistente, interface clara e documentação profissional resulta em um sistema confiável, preparado para uso real e expansão futura.
+
+---
