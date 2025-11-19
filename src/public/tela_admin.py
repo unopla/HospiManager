@@ -53,7 +53,6 @@ def criar_tela_admin(dados_usuario):
         
         for u in resultado:
             ctk.CTkLabel(win, text=f"{u[0]} — {u[1]} ({u[2]})", font=("Arial", 14)).pack(anchor="w", padx=10)
-        # cada usuário é como uma história que a gente protege
 
     def listar_pacientes():
         conn = conectar()
