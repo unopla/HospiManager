@@ -1,1 +1,1 @@
-O HospiManager é um programa que utilizara do sistema 
+O HospiManager é um programa que tem a função facilitar o trabalho dos médicos, enfermeiros e dos recepcionistas, tambem tera a ideia do Kambum, tendo um sistema de urgencia para cada nivel e possui a divisão de tarefas de cada grup, sendo os medicos, enfermeiros e 
