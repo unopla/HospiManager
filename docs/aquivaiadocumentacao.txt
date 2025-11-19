@@ -5,7 +5,6 @@ paciente. Além disso, o programa foi planejado com setores distintos para cada 
 enfermeiros e recepcionistas tenham acesso apenas às funcionalidades adequadas ao seu papel. O sistema possui ainda um módulo
 administrativo no qual o responsável pode cadastrar, editar ou excluir usuários, mantendo o controle global da aplicação.
 
-
 Durante o desenvolvimento, a equipe dividiu as responsabilidades de forma a garantir maior organização e produtividade. Kelvin
 assumiu o planejamento do banco de dados e parte do backend, criando as estruturas responsáveis pelas informações do sistema e
 pela comunicação com o servidor. Matheus Girelli concentrou-se na lógica interna do backend, assegurando o funcionamento correto
