@@ -5,12 +5,12 @@ paciente. Além disso, o programa foi planejado com setores distintos para cada 
 enfermeiros e recepcionistas tenham acesso apenas às funcionalidades adequadas ao seu papel. O sistema possui ainda um módulo
 administrativo no qual o responsável pode cadastrar, editar ou excluir usuários, mantendo o controle global da aplicação.
 
-Durante o desenvolvimento, a equipe dividiu as responsabilidades de forma a garantir maior organização e produtividade. Kelvin 
-assumiu o planejamento do banco de dados e parte do backend, criando as estruturas responsáveis pelas informações do sistema e
-pela comunicação com o servidor. Matheus Girelli concentrou-se na lógica interna do backend, assegurando o funcionamento correto
-das operações e integrações. Gabriel  CARALHO ENFIAR A PORRA DO NOME INTEIRO ficou encarregado do frontend, projetando e implementando a interface visual, buscando torná-
-la clara, moderna e intuitiva. Já Mateus Marafon dedicou-se à elaboração da documentação e do manual de uso, assegurando que o 
-sistema pudesse ser compreendido e utilizado de forma correta por todos os perfis.
+Durante o desenvolvimento, a equipe dividiu as responsabilidades de forma a garantir maior organização e produtividade. Kelvin
+Arcari assumiu o planejamento do banco de dados e parte do backend, criando as estruturas responsáveis pelas informações do 
+sistema epela comunicação com o servidor. Matheus Girelli concentrou-se na lógica interna do backend, assegurando o funcionamento
+corretodas operações e integrações. Gabriel Zarpelon ficou encarregado do frontend, projetando e implementando a interface
+visual, buscando torná-la clara, moderna e intuitiva. Já Mateus Marafon dedicou-se à elaboração da documentação e do manual de 
+uso, assegurando que o sistema pudesse ser compreendido e utilizado de forma correta por todos os perfis.
 
 O projeto foi sustentado por um banco de dados robusto e extensível, preparado para lidar com cadastros de pacientes, triagens
 completas, registros de atendimentos, gerenciamento de profissionais, tabelas de urgência, setores hospitalares e especialidades 
