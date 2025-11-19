@@ -1,215 +1,125 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+from db import conectar
+from funcoes_tela import abrir_tela_admin, abrir_tela_medico, abrir_tela_enfermeiro, abrir_tela_recepcao
 
-# =============================
-# CONFIGURAÇÃO GERAL
-# =============================
+
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
-app = ctk.CTk()
-app.title("Prova Final — Sistema de Atendimento Hospitalar")
-app.geometry("1920x1080")
-app.overrideredirect(True)   # remove a barra padrão para criar a customizada
-app.configure(fg_color="#e9eef5")
 
-# =============================
-# FUNÇÕES DA BARRA SUPERIOR
-# ============================= 
-def fechar():
-    app.destroy()
+class TelaLogin(ctk.CTk):
+    def __init__(self):
+        super().__init__()
 
-def minimizar():
-    app.overrideredirect(False)
-    app.iconify()
-    app.after(10, lambda: app.overrideredirect(True))
+        self.title("Login — Sistema Hospitalar")
+        self.geometry("600x480")
+        self.resizable(False, False)
+        self.configure(fg_color="#e9eef5")
 
-maximizado = False
-def maximizar():
-    global maximizado
-    if not maximizado:
-        app.state('zoomed')
-        maximizado = True
-    else:
-        app.state('normal')
-        maximizado = False
+        # =============================
+        # FRAME CENTRAL (CARD)
+        # =============================
+        card = ctk.CTkFrame(self, fg_color="white", corner_radius=25, width=450, height=400)
+        card.place(relx=0.5, rely=0.5, anchor="center")
 
-# =============================
-# BARRA SUPERIOR CUSTOMIZADA
-# =============================
-barra = ctk.CTkFrame(app, height=45, fg_color="#1b3e90")
-barra.pack(fill="x", side="top")
+        # =============================
+        # TÍTULO
+        # =============================
+        ctk.CTkLabel(card, text="HospiManager", font=("Arial", 28, "bold"), text_color="#0a2e78")\
+            .place(relx=0.5, y=40, anchor="center")
+        ctk.CTkLabel(card, text="Acesso ao Sistema", font=("Arial", 16), text_color="#1b2e4a")\
+            .place(relx=0.5, y=80, anchor="center")
 
-# ========= TÍTULO CENTRALIZADO DA BARRA SUPERIOR =========
-titulo_barra = ctk.CTkLabel(
-    barra,
-    text="HospiManager — Sistema Hospitalar",
-    text_color="white",
-    font=("Segoe UI", 16, "bold")
-)
-titulo_barra.place(y=10)
+        # =============================
+        # CAMPOS DE ENTRADA
+        # =============================
+        self.input_usuario = ctk.CTkEntry(card, width=300, height=45, placeholder_text="Usuário", font=("Arial", 16))
+        self.input_usuario.place(relx=0.5, y=140, anchor="center")
 
-# Centralização REAL após atualizar tamanho da barra
-barra.update()
-titulo_barra.update()
+        self.input_senha = ctk.CTkEntry(card, width=300, height=45, placeholder_text="Senha", show="•", font=("Arial", 16))
+        self.input_senha.place(relx=0.5, y=200, anchor="center")
 
-largura_barra = barra.winfo_width()
-largura_titulo = titulo_barra.winfo_width()
-x_central = (largura_barra - largura_titulo) // 2
+        # Mostrar / Ocultar senha
+        self.ver_senha = False
+        self.btn_toggle = ctk.CTkButton(card, text="Mostrar Senha", width=130, height=28,
+                                        fg_color="#1b3e90", hover_color="#16367c", command=self.toggle_senha)
+        self.btn_toggle.place(relx=0.72, y=240, anchor="center")
 
-titulo_barra.place(x=x_central)
+        # BOTÃO LOGIN
+        btn_login = ctk.CTkButton(card, text="Entrar", width=300, height=50, corner_radius=12,
+                                  font=("Arial", 20, "bold"), fg_color="#1b3e90", hover_color="#16367c",
+                                  command=self.realizar_login)
+        btn_login.place(relx=0.5, y=300, anchor="center")
+
+    # ===================================
+    # FUNÇÃO MOSTRAR / OCULTAR SENHA
+    # ===================================
+    def toggle_senha(self):
+        if self.ver_senha:
+            self.input_senha.configure(show="•")
+            self.btn_toggle.configure(text="Mostrar Senha")
+        else:
+            self.input_senha.configure(show="")
+            self.btn_toggle.configure(text="Ocultar Senha")
+        self.ver_senha = not self.ver_senha
+
+    # ===================================
+    # FUNÇÃO DE VERIFICAÇÃO DE LOGIN
+    # ===================================
+    def verificar_login(self, usuario, senha):
+        conexao = conectar()
+        if conexao is None:
+            return {"status": False, "erro": "Falha ao conectar ao banco"}
+
+        cursor = conexao.cursor()
+        consulta = "SELECT nome, tipo FROM usuarios WHERE login=%s AND senha_hash=%s"
+        cursor.execute(consulta, (usuario, senha))
+        resultado = cursor.fetchone()
+        cursor.close()
+        conexao.close()
+
+        if resultado is None:
+            return {"status": False, "erro": "Usuário ou senha incorretos"}
+
+        nome, cargo = resultado
+        return {"status": True, "nome": nome, "cargo": cargo}
+
+    # ===================================
+    # FUNÇÃO DE LOGIN
+    # ===================================
+    def realizar_login(self):
+        usuario = self.input_usuario.get()
+        senha = self.input_senha.get()
+
+        if usuario == "" or senha == "":
+            messagebox.showerror("Erro", "Preencha todos os campos!")
+            return
+
+        resultado = self.verificar_login(usuario, senha)
+
+        if not resultado["status"]:
+            messagebox.showerror("Erro", resultado["erro"])
+            return
+
+        cargo = resultado["cargo"]
+
+        # Abre a tela conforme o cargo
+        if cargo == "Admin":
+            abrir_tela_admin(resultado)
+        elif cargo == "Medico":
+            abrir_tela_medico(resultado)
+        elif cargo == "Enfermeiro":
+            abrir_tela_enfermeiro(resultado)
+        elif cargo == "Recepcao":
+            abrir_tela_recepcao(resultado)
+        else:
+            messagebox.showerror("Erro", "Cargo desconhecido")
+            return
+
+        self.destroy()
 
 
-# Função para arrastar a janela
-def iniciar_move(e):
-    app.xwin = e.x
-    app.ywin = e.y
-
-def mover_janela(e):
-    x = e.x_root - app.xwin
-    y = e.y_root - app.ywin
-    app.geometry(f"+{x}+{y}")
-
-barra.bind("<ButtonPress-1>", iniciar_move)
-barra.bind("<B1-Motion>", mover_janela)
-
-# Botões da janela
-btn_min = ctk.CTkButton(
-    barra, width=45, text="–",
-    fg_color="#1b3e90", hover_color="#16367c",
-    command=minimizar, font=("Arial", 22)
-)
-btn_min.place(x=1780, y=5)
-
-btn_max = ctk.CTkButton(
-    barra, width=45, text="□",
-    fg_color="#1b3e90", hover_color="#16367c",
-    command=maximizar, font=("Arial", 20)
-)
-btn_max.place(x=1830, y=5)
-
-btn_close = ctk.CTkButton(
-    barra, width=45, text="✕",
-    fg_color="#c72742", hover_color="#a01f34",
-    command=fechar, font=("Arial", 20)
-)
-btn_close.place(x=1880, y=5)
-
-# =============================
-# PAINEL PRINCIPAL (FULL)
-# =============================
-painel = ctk.CTkFrame(app, fg_color="#e9eef5")
-painel.pack(fill="both", expand=True)
-
-# =============================
-# FUNÇÃO PARA CRIAR TÍTULOS CENTRALIZADOS
-# =============================
-def criar_titulo(container, texto, tamanho=45, y=50, cor="#0a2e78"):
-    titulo = ctk.CTkLabel(
-        container,
-        text=texto,
-        font=("Arial", tamanho, "bold"),
-        text_color=cor
-    )
-    titulo.place(y=y)
-
-    container.update()
-    titulo.update()
-    largura_container = container.winfo_width()
-    largura_titulo = titulo.winfo_width()
-    x = (largura_container - largura_titulo) // 2
-    titulo.place(x=x)
-
-    return titulo
-
-# =============================
-# TÍTULOS CENTRALIZADOS
-# =============================
-titulo = criar_titulo(
-    painel,
-    "Menu Principal da Prova Final",
-    tamanho=45,
-    y=60,
-    cor="#0a2e78"
-)
-
-subtitulo = criar_titulo(
-    painel,
-    "Escolha um dos módulos abaixo para continuar:",
-    tamanho=22,
-    y=130,
-    cor="#1f2f47"
-)
-
-# =============================
-# IMAGEM DECORATIVA
-# =============================
-try:
-    pil_img = Image.open("img/hospital_team.jpg").resize((400, 260))
-    tk_img = ImageTk.PhotoImage(pil_img)
-    img_label = ctk.CTkLabel(painel, image=tk_img, text="")
-    img_label.image = tk_img
-    img_label.place(x=820, y=20)
-except:
-    ctk.CTkLabel(
-        painel,
-        text="[hospital_team.jpg não encontrado]",
-        font=("Arial", 16),
-        text_color="gray"
-    ).place(x=1300, y=240)
-
-# =============================
-# CARD DE BOTÕES (GIGANTE)
-# =============================
-card = ctk.CTkFrame(
-    painel,
-    fg_color="white",
-    corner_radius=35,
-    width=1100,
-    height=500
-)
-card.place(x=60, y=220)
-
-botao_style = dict(
-    width=430,
-    height=85,
-    corner_radius=16,
-    font=("Arial", 23, "bold"),
-    fg_color="#1b3e90",
-    hover_color="#16367c",
-    text_color="white"
-)
-
-# Linha 1
-ctk.CTkButton(card, text="Triagem", **botao_style).place(x=50, y=50)
-ctk.CTkButton(card, text="Classificação de Urgência", **botao_style).place(x=560, y=50)
-
-# Linha 2
-ctk.CTkButton(card, text="Encaminhamento Automático", **botao_style).place(x=50, y=190)
-ctk.CTkButton(card, text="Registro Entrada / Saída", **botao_style).place(x=560, y=190)
-
-# Linha 3
-ctk.CTkButton(card, text="Cadastro Médico (CRM)", **botao_style).place(x=50, y=330)
-ctk.CTkButton(card, text="Gerar Laudo / Relatório", **botao_style).place(x=560, y=330)
-
-# =============================
-# RODAPÉ PREMIUM
-# =============================
-rodape = ctk.CTkFrame(
-    painel,
-    fg_color="white",
-    corner_radius=25,
-    width=1100,
-    height=120
-)
-rodape.place(x=60, y=760)
-
-ctk.CTkButton(rodape, text="Créditos", width=300, height=60, corner_radius=16).place(x=40, y=30)
-ctk.CTkButton(rodape, text="Documentação", width=300, height=60, corner_radius=16).place(x=400, y=30)
-ctk.CTkButton(rodape, text="Manual do Usuário", width=300, height=60, corner_radius=16).place(x=760, y=30)
-
-# =============================
-# LOOP FINAL
-# =============================
-app.mainloop()
+if __name__ == "__main__":
+    TelaLogin().mainloop()
