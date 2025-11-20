@@ -28,3 +28,9 @@ def abrir_tela_cadastro(nome_usuario, tela_atual):
     tela_atual.destroy()  # Fecha a tela anterior
     tela = cadastro_paciente(nome_usuario)
     tela.mainloop()
+
+def abrir_tela_adicionar_usuario(nome_usuario, tela_atual):
+    from public.tela_adicionar_usuarios import cadastro_usuario
+    tela_atual.destroy()
+    tela = cadastro_usuario(nome_usuario)
+    tela.mainloop()
