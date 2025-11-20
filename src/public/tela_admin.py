@@ -55,7 +55,7 @@ def criar_tela_admin(nome_usuario):
         conn = conectar()
         cursor = conn.cursor()
         try:
-            cursor.execute("SELECT id_usuario, nome, tipo FROM usuarios ORDER BY nome")
+            cursor.execute("SELECT id_usuario, nome, tipo FROM usuarios WHERE tipo != 'admin' ORDER BY nome")
             resultado = cursor.fetchall()
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao buscar usuários: {e}")
