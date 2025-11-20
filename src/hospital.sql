@@ -113,11 +113,21 @@ CREATE TABLE medicos (
     ativo BOOLEAN DEFAULT 1,
     FOREIGN KEY (id_especialidade) REFERENCES especialidades(id_especialidade)
 );
+-- ============================================================
+-- TABELA: usuarios (PARA LOGIN NO TKINTER)
+-- ============================================================
 
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(120),
+    login VARCHAR(50) UNIQUE,
+    senha_hash VARCHAR(255),
+    tipo ENUM('Admin', 'Medico', 'Enfermeiro', 'Recepcao')
+);
 -- ============================================================
 -- TABELA: triagem
 -- ============================================================
-
+drop table if exists triagem;
 CREATE TABLE triagem (
     id_triagem INT AUTO_INCREMENT PRIMARY KEY,
     id_paciente INT NOT NULL,
@@ -136,7 +146,7 @@ CREATE TABLE triagem (
     FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente),
     FOREIGN KEY (id_classificacao) REFERENCES classificacao_urgencia(id_classificacao),
     FOREIGN KEY (id_setor) REFERENCES setores(id_setor),
-    FOREIGN KEY (id_profissional) REFERENCES medicos(id_medico)
+    FOREIGN KEY (id_profissional) REFERENCES usuarios(id_usuario)
 );
 
 -- ============================================================
@@ -211,18 +221,6 @@ CREATE TABLE logs_sistema (
     usuario VARCHAR(120),
     acao TEXT,
     horario DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- ============================================================
--- TABELA: usuarios (PARA LOGIN NO TKINTER)
--- ============================================================
-
-CREATE TABLE usuarios (
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(120),
-    login VARCHAR(50) UNIQUE,
-    senha_hash VARCHAR(255),
-    tipo ENUM('Admin', 'Medico', 'Enfermeiro', 'Recepcao')
 );
 
 INSERT INTO usuarios (nome, login, senha_hash, tipo)
