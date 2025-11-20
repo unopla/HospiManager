@@ -1,5 +1,4 @@
 def criar_tela_medico(nome_usuario):
-
     import customtkinter as ctk
     from tkinter import messagebox
     import datetime
@@ -29,56 +28,38 @@ def criar_tela_medico(nome_usuario):
     app.configure(fg_color=COLORS["bg"])
 
     # ============================================================
-    # FUNÇÃO — LIMPAR MAIN
+    # LIMPAR MAIN
     # ============================================================
-    # daria pra ter feito tudo isso num arquivo só. dps de terminar tentarei pra ver se fica na altura dela
     def limpar_main():
         for widget in main.winfo_children():
             widget.destroy()
 
     # ============================================================
-    # TELAS COM BANCO DE DADOS
+    # FUNÇÕES DE TELAS
     # ============================================================
-
     def tela_consultas_hoje():
         limpar_main()
         cards_row = ctk.CTkFrame(main, fg_color=COLORS["bg"])
         cards_row.pack(fill="x", pady=10)
 
-        cursor = conectar.cursor(dictionary=True)
+        conn = conectar()
+        cursor = conn.cursor(dictionary=True)
         hoje = datetime.date.today().strftime("%Y-%m-%d")
 
-        #botei de acordo com o banco de dados
         cursor.execute("SELECT COUNT(*) as total FROM atendimentos WHERE DATE(horario_inicio) = %s", (hoje,))
         total_consultas = cursor.fetchone()['total']
         criar_card(cards_row, "Consultas Hoje", str(total_consultas))
 
-    
         cursor.execute("SELECT COUNT(*) as total FROM atendimentos WHERE status='Em andamento'")
         aguardando = cursor.fetchone()['total']
         criar_card(cards_row, "Aguardando", str(aguardando))
 
-        
         cursor.execute("SELECT COUNT(*) as total FROM procedimentos WHERE DATE(horario) = %s", (hoje,))
         alertas = cursor.fetchone()['total']
         criar_card(cards_row, "Exames / Alertas", str(alertas))
 
-        # lista de pacientes
-        card = criar_card_tela("Pacientes Agendados Hoje")
-        lista = ctk.CTkTextbox(card, height=170, fg_color=COLORS["blue_light"], corner_radius=15)
-        lista.pack(fill="x", padx=20, pady=15)
-
-        cursor.execute("""
-            SELECT p.nome, a.horario_inicio
-            FROM pacientes p
-            JOIN atendimentos a ON p.id_paciente = a.id_paciente
-            WHERE DATE(a.horario_inicio) = %s
-            ORDER BY a.horario_inicio ASC
-        """, (hoje,))
-        for row in cursor.fetchall():
-            hora = row['horario_inicio'].strftime("%H:%M")
-            lista.insert("end", f" {hora} – {row['nome']}\n")
         cursor.close()
+        conn.close()
 
     def tela_pacientes_aguardando():
         limpar_main()
@@ -86,7 +67,8 @@ def criar_tela_medico(nome_usuario):
         txt = ctk.CTkTextbox(card, height=200, fg_color=COLORS["blue_light"], corner_radius=15)
         txt.pack(fill="x", padx=20, pady=15)
 
-        cursor = conectar.cursor(dictionary=True)
+        conn = conectar()
+        cursor = conn.cursor(dictionary=True)
         cursor.execute("""
             SELECT p.nome, a.horario_inicio
             FROM pacientes p
@@ -97,7 +79,9 @@ def criar_tela_medico(nome_usuario):
         for row in cursor.fetchall():
             hora = row['horario_inicio'].strftime("%H:%M")
             txt.insert("end", f"  {row['nome']} – {hora}\n")
+
         cursor.close()
+        conn.close()
 
     def tela_buscar_prontuario():
         limpar_main()
@@ -110,7 +94,8 @@ def criar_tela_medico(nome_usuario):
             if termo == "":
                 messagebox.showerror("Erro", "Digite um nome ou CPF.")
                 return
-            cursor = conectar.cursor(dictionary=True)
+            conn = conectar()
+            cursor = conn.cursor(dictionary=True)
             cursor.execute("""
                 SELECT p.*, a.id_atendimento, a.diagnostico
                 FROM pacientes p
@@ -119,6 +104,7 @@ def criar_tela_medico(nome_usuario):
             """, (f"%{termo}%", termo))
             resultado = cursor.fetchone()
             cursor.close()
+            conn.close()
 
             if resultado:
                 texto = f"Paciente: {resultado['nome']}\nNascimento: {resultado['data_nascimento']}\n"
@@ -145,7 +131,6 @@ def criar_tela_medico(nome_usuario):
         limpar_main()
         card = criar_card_tela("Registrar Atendimento")
 
-        
         txt_diagnostico = ctk.CTkTextbox(card, height=150, border_width=2, border_color=COLORS["blue"], corner_radius=15)
         txt_diagnostico.pack(padx=20, pady=10, fill="x")
 
@@ -166,23 +151,26 @@ def criar_tela_medico(nome_usuario):
                 messagebox.showerror("Erro", "Preencha o nome do paciente e ID do médico.")
                 return
 
-            cursor = conectar.cursor()
+            conn = conectar()
+            cursor = conn.cursor(dictionary=True)
 
             cursor.execute("SELECT id_paciente FROM pacientes WHERE nome=%s", (nome,))
             paciente = cursor.fetchone()
             if paciente:
-                id_paciente = paciente[0]
+                id_paciente = paciente['id_paciente']
             else:
                 cursor.execute("INSERT INTO pacientes (nome) VALUES (%s)", (nome,))
                 id_paciente = cursor.lastrowid
 
-    
-            cursor.execute("INSERT INTO atendimentos (id_paciente, id_medico, diagnostico, tipo_atendimento, status) VALUES (%s, %s, %s, %s, %s)",
-                        (id_paciente, id_medico, diagnostico, 'Consulta', 'Em andamento'))
+            cursor.execute("""
+                INSERT INTO atendimentos (id_paciente, id_medico, diagnostico, tipo_atendimento, status)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (id_paciente, id_medico, diagnostico, 'Consulta', 'Em andamento'))
 
-            conectar.commit()
+            conn.commit()
             cursor.close()
-            messagebox.showinfo("Salvo", f"Atendimento de {nome} registrado. Silencioso, mas presente.")
+            conn.close()
+            messagebox.showinfo("Salvo", f"Atendimento de {nome} registrado com sucesso.")
 
         ctk.CTkButton(
             card,
@@ -196,6 +184,100 @@ def criar_tela_medico(nome_usuario):
             command=salvar
         ).pack(pady=10)
 
+    # ============================================================
+    # FILA DE ATENDIMENTO AUTOMÁTICA
+    # ============================================================
+    def tela_fila_atendimento():
+        limpar_main()
+
+        main_frame = ctk.CTkFrame(main, fg_color=COLORS["bg"])
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        main_frame.grid_rowconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(1, weight=1)
+
+        fila_frame = ctk.CTkFrame(main_frame, fg_color=COLORS["card"], corner_radius=12, width=300)
+        fila_frame.grid(row=0, column=0, sticky="ns", padx=(0,10), pady=5)
+        ctk.CTkLabel(fila_frame, text="Fila de Atendimento", font=("Arial", 18, "bold"), text_color=COLORS["blue"]).pack(pady=10)
+
+        lista = ctk.CTkTextbox(fila_frame, height=500, fg_color=COLORS["blue_light"], corner_radius=15)
+        lista.pack(fill="both", expand=True, padx=10, pady=10)
+
+        paciente_frame = ctk.CTkFrame(main_frame, fg_color=COLORS["card"], corner_radius=12)
+        paciente_frame.grid(row=0, column=1, sticky="nsew", pady=5)
+        ctk.CTkLabel(paciente_frame, text="Paciente em Atendimento", font=("Arial", 18, "bold"), text_color=COLORS["blue"]).pack(pady=10)
+
+        def atualizar_fila():
+            conn = conectar()
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute("""
+                SELECT t.id_triagem, p.nome, c.nome AS classificacao, c.prioridade,
+                       t.pressao_arterial, t.frequencia_cardiaca, t.frequencia_respiratoria,
+                       t.saturacao, t.temperatura, t.dor_escala, t.sintomas, t.historico
+                FROM triagem t
+                JOIN pacientes p ON t.id_paciente = p.id_paciente
+                JOIN classificacao_urgencia c ON t.id_classificacao = c.id_classificacao
+                ORDER BY c.prioridade DESC, t.horario_chegada ASC
+            """)
+            pacientes = cursor.fetchall()
+            cursor.close()
+            conn.close()
+
+            # Lista lateral
+            lista.delete("0.0", "end")
+            for i, p in enumerate(pacientes):
+                lista.insert("end", f"{i+1}. {p['nome']} – {p['classificacao']}\n")
+
+            # Paciente atual
+            for widget in paciente_frame.winfo_children():
+                if isinstance(widget, ctk.CTkLabel) and "Paciente:" in widget.cget("text"):
+                    widget.destroy()
+
+            if pacientes:
+                atual = pacientes[0]
+                info = (
+                    f"Paciente: {atual['nome']}\n"
+                    f"Classificação: {atual['classificacao']} (Prioridade {atual['prioridade']})\n"
+                    f"Pressão: {atual['pressao_arterial']}\n"
+                    f"Freq. Cardíaca: {atual['frequencia_cardiaca']} bpm\n"
+                    f"Freq. Respiratória: {atual['frequencia_respiratoria']} rpm\n"
+                    f"Saturação: {atual['saturacao']}%\n"
+                    f"Temperatura: {atual['temperatura']}°C\n"
+                    f"Dor (0-10): {atual['dor_escala']}\n"
+                    f"Sintomas: {atual['sintomas']}\n"
+                    f"Histórico: {atual['historico']}"
+                )
+            else:
+                info = "Nenhum paciente na fila."
+
+            ctk.CTkLabel(paciente_frame, text=info, font=("Arial", 16), justify="left").pack(pady=10, padx=10, anchor="w")
+            return pacientes
+
+        def finalizar_primeiro():
+            pacientes = atualizar_fila()
+            if not pacientes:
+                messagebox.showinfo("Fila Vazia", "Não há pacientes para atendimento.")
+                return
+            paciente = pacientes[0]
+
+            conn = conectar()
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM triagem WHERE id_triagem=%s", (paciente['id_triagem'],))
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            messagebox.showinfo("Atendimento Finalizado", f"Paciente {paciente['nome']} finalizado.")
+            atualizar_fila()
+
+        ctk.CTkButton(paciente_frame, text="Finalizar Atendimento", fg_color=COLORS["blue"],
+                      hover_color=COLORS["blue_dark"], command=finalizar_primeiro).pack(pady=20)
+
+        atualizar_fila()
+
+    # ============================================================
+    # CARDS E BOTÕES
+    # ============================================================
     def criar_card_tela(titulo):
         card = ctk.CTkFrame(main, fg_color=COLORS["card"], corner_radius=20)
         card.pack(fill="x", pady=10)
@@ -209,10 +291,11 @@ def criar_tela_medico(nome_usuario):
         ctk.CTkLabel(frame, text=valor, text_color="#1a1a1a", font=FONT_BIG).pack(pady=(0, 15))
 
     def criar_botao_menu(texto, comando):
-        return ctk.CTkButton(menu, text=texto, fg_color=COLORS["blue"], hover_color=COLORS["blue_dark"], text_color="white", height=45, width=185, corner_radius=25, command=comando)
+        return ctk.CTkButton(menu, text=texto, fg_color=COLORS["blue"], hover_color=COLORS["blue_dark"],
+                             text_color="white", height=45, width=185, corner_radius=25, command=comando)
 
     # ============================================================
-    # TOPO
+    # INTERFACE
     # ============================================================
     top_bar = ctk.CTkFrame(app, fg_color=COLORS["blue"], height=65)
     top_bar.pack(fill="x")
@@ -220,9 +303,6 @@ def criar_tela_medico(nome_usuario):
     hora_atual = datetime.datetime.now().strftime("%d/%m/%Y  •  %H:%M")
     ctk.CTkLabel(top_bar, text=hora_atual, font=("Arial", 18), text_color="white").place(relx=0.87, y=20)
 
-    # ============================================================
-    # MENU
-    # ============================================================
     menu = ctk.CTkFrame(app, width=230, fg_color="white", corner_radius=0)
     menu.pack(side="left", fill="y")
     ctk.CTkLabel(menu, text="MÉDICO", font=("Arial", 26, "bold"), text_color=COLORS["blue"]).pack(pady=(30, 10))
@@ -230,15 +310,13 @@ def criar_tela_medico(nome_usuario):
     criar_botao_menu("Pacientes Aguardando", tela_pacientes_aguardando).pack(pady=8)
     criar_botao_menu("Buscar Prontuário", tela_buscar_prontuario).pack(pady=8)
     criar_botao_menu("Registrar Atendimento", tela_registrar_atendimento).pack(pady=8)
+    criar_botao_menu("Fila de Atendimento", tela_fila_atendimento).pack(pady=8)
     criar_botao_menu("Sair", app.destroy).pack(pady=(40, 10))
 
-    # ============================================================
-    # MAIN (INÍCIO)
-    # ============================================================
-    main = ctk.CTkFrame(app, fg_color=COLORS["bg"]) # quem mesmo botou o nome do background de bg? seja quem for (Chuto ser o zarpa), me fez rir muito kkk
+    main = ctk.CTkFrame(app, fg_color=COLORS["bg"])
     main.pack(side="right", fill="both", expand=True, padx=20, pady=15)
 
     # Tela inicial
     tela_consultas_hoje()
-    
+
     return app
