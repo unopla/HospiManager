@@ -72,8 +72,8 @@ def criar_tela_admin(nome_usuario):
 
                 ctk.CTkLabel(row_frame, text=f"{u[1]} ({u[2]})", font=("Arial", 14)).pack(side="left", padx=10)
                 
-                def apagar_usuario(id_usuario=u[0]):
-                    if messagebox.askyesno("Confirmar", f"Deseja apagar o usuário {u[1]}?"):
+                def apagar_usuario(id_usuario=u[0], nome=u[1]):
+                    if messagebox.askyesno("Confirmar", f"Deseja apagar o usuário {nome}?"):
                         conn = conectar()
                         cursor = conn.cursor()
                         try:

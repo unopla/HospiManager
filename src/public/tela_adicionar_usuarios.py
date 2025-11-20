@@ -1,8 +1,8 @@
-# public/tela_cadastro_usuario.py
 def cadastro_usuario(nome_usuario):
     import customtkinter as ctk
     from tkinter import messagebox
     from db import conectar
+    from funcoes_tela import abrir_tela_admin
 
     # ===============================
     # CONFIGURAÇÃO DA JANELA PRINCIPAL
@@ -48,7 +48,7 @@ def cadastro_usuario(nome_usuario):
     ent_senha.grid(row=2, column=1, pady=10, padx=10)
 
     label("Tipo de Usuário:").grid(row=3, column=0, sticky="w", pady=10)
-    ent_tipo = ctk.CTkOptionMenu(frame, values=["Admin", "Medico", "Enfermeiro", "Recepcao"], width=200)
+    ent_tipo = ctk.CTkOptionMenu(frame, values=["Medico", "Enfermeiro", "Recepcao"], width=200)
     ent_tipo.grid(row=3, column=1, pady=10, padx=10, sticky="w")
 
     # ===============================
@@ -91,6 +91,9 @@ def cadastro_usuario(nome_usuario):
     # ===============================
     # BOTÃO CONFIRMAR
     # ===============================
+    def voltar():
+        abrir_tela_admin(nome_usuario,app)
+
     ctk.CTkButton(
         frame,
         text="Confirmar Cadastro",
@@ -102,5 +105,19 @@ def cadastro_usuario(nome_usuario):
         font=("Arial", 16, "bold"),
         command=cadastrar
     ).grid(row=4, column=0, columnspan=2, pady=30)
+    
+    ctk.CTkButton(
+        frame,
+        text="Voltar",
+        fg_color="#0064C8",
+        hover_color="#0050A0",
+        text_color="white",
+        width=250,
+        height=45,
+        font=("Arial", 16, "bold"),
+        command=voltar
+    ).grid(row=5, column=0, columnspan=2, pady=30)
+    
+    
 
     return app
