@@ -1,4 +1,4 @@
-def criar_tela_medico(nome_usuario)
+def criar_tela_medico(nome_usuario):
 
     import customtkinter as ctk
     from tkinter import messagebox
@@ -240,3 +240,5 @@ def criar_tela_medico(nome_usuario)
 
     # Tela inicial
     tela_consultas_hoje()
+    
+    return app

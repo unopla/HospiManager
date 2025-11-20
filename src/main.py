@@ -5,7 +5,7 @@ from db import conectar
 from funcoes_tela import (
     abrir_tela_admin,
     abrir_tela_medico,
-    abrir_tela_enfermeiro,
+    abrir_tela_enfermeira,
     abrir_tela_recepcao
 )
 
@@ -116,7 +116,7 @@ class TelaLogin(ctk.CTk):
         elif cargo == "Medico":
             abrir_tela_medico(resultado["nome"], self)
         elif cargo == "Enfermeiro":
-            abrir_tela_enfermeiro(resultado["nome"], self)
+            abrir_tela_enfermeira(resultado["nome"], self)
         elif cargo == "Recepcao":
             abrir_tela_recepcao(resultado["nome"], self)
         else:
