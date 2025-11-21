@@ -4,7 +4,6 @@ def abrir_tela_admin(nome_usuario, tela_atual):
     tela = criar_tela_admin(nome_usuario)
     tela.mainloop()
 
-
 def abrir_tela_enfermeira(nome_usuario, tela_atual):
     from public.tela_enfermeira import criar_tela_enfermeira
     tela_atual.withdraw()
