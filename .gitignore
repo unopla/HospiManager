@@ -1,4 +1,32 @@
+# --------------------------
+# Cache e arquivos do Python
+# --------------------------
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# --------------------------
+# Build do PyInstaller
+# --------------------------
+build/
+main.spec
+
+# --------------------------
+# Arquivos pessoais
+# --------------------------
+*.log
+*.db
+*.sqlite
+
+# --------------------------
+# SQL do projeto
+# --------------------------
+src/hospital.sql
+
+# --------------------------
+# Documentação
+# --------------------------
+docs/aquivaiadocumentacao.md
+docs/manual__correto.md
+
