@@ -55,12 +55,17 @@ def criar_tela_recepcao(nome_usuario):
     if conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT id_paciente, nome, sexo,
-            TIMESTAMPDIFF(YEAR, data_nascimento, CURDATE()) AS idade
-            FROM pacientes ORDER BY id_paciente ASC
+            SELECT p.id_paciente, p.nome, p.sexo,
+                TIMESTAMPDIFF(YEAR, p.data_nascimento, CURDATE()) AS idade
+            FROM pacientes p
+            LEFT JOIN triagem t ON p.id_paciente = t.id_paciente
+                AND t.status = 'Finalizado'
+            WHERE t.id_triagem IS NULL
+            ORDER BY p.id_paciente ASC
         """)
         patients = cursor.fetchall()
         conn.close()
+
 
     # =========================
     # Criar Janela

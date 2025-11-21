@@ -98,8 +98,6 @@ CREATE TABLE medicos (
     id_usuario INT NOT NULL,
     nome VARCHAR(120) NOT NULL,
     crm VARCHAR(20) NOT NULL UNIQUE,
-    telefone VARCHAR(20),
-    email VARCHAR(120),
     horario_entrada TIME,
     horario_saida TIME,
     ativo BOOLEAN DEFAULT 1,
@@ -125,6 +123,7 @@ CREATE TABLE triagem (
     id_setor INT NOT NULL,
     id_profissional INT NOT NULL,
     horario_chegada DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('Pendente','Finalizado') DEFAULT 'Pendente',
     FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente),
     FOREIGN KEY (id_classificacao) REFERENCES classificacao_urgencia(id_classificacao),
     FOREIGN KEY (id_setor) REFERENCES setores(id_setor),
@@ -217,23 +216,32 @@ CREATE TABLE relatorios (
     FOREIGN KEY (id_atendimento) REFERENCES atendimentos(id_atendimento)
 );
 
--- ============================================================
--- TABELA: logs
--- ============================================================
-
-CREATE TABLE logs_sistema (
-    id_log INT AUTO_INCREMENT PRIMARY KEY,
-    usuario VARCHAR(120),
-    acao TEXT,
-    horario DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- ============================================================
--- USUÁRIOS PADRÃO
--- ============================================================
+-- ============================================
+-- usuarios padrao
+-- ============================================
 
 INSERT INTO usuarios (nome, login, senha_hash, tipo) VALUES
 ('Administrador Geral','admin','admin123','Admin'),
 ('Dr. João Silva','drjoao','medico123','Medico'),
 ('Maria Santos','maria_enf','enfermeira123','Enfermeiro'),
 ('Paulo Souza','paulo_rec','recepcao123','Recepcao');
+
+-- Médicos
+INSERT INTO medicos (id_usuario, nome, crm, horario_entrada, horario_saida, ativo)
+SELECT id_usuario, nome, CONCAT('CRM', LPAD(id_usuario, 4, '0')), '08:00:00', '17:00:00', 1
+FROM usuarios
+WHERE tipo = 'Medico';
+
+-- Enfermeiros
+INSERT INTO enfermeiros (id_usuario, nome, coren, ativo)
+SELECT id_usuario, nome, CONCAT('COREN', LPAD(id_usuario, 4, '0')), 1
+FROM usuarios
+WHERE tipo = 'Enfermeiro';
+
+-- Recepcionistas
+INSERT INTO recepcionistas (id_usuario, ativo)
+SELECT id_usuario, 1
+FROM usuarios
+WHERE tipo = 'Recepcao';
+
+

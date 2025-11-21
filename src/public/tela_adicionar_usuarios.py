@@ -1,20 +1,22 @@
-def cadastro_usuario(nome_usuario):
+def cadastro_usuario(nome_usuario): 
     import customtkinter as ctk
     from tkinter import messagebox
     from db import conectar
     from funcoes_tela import abrir_tela_admin
 
-    # =========================================
-    # PALETA IGUAL À TELA DE RECEPÇÃO
-    # =========================================
     PALETTE = {
         "primary": "#005F86",
+        "primary_gradient": ["#005F86", "#0077B6"],
         "sidebar": "#E9F4F8",
         "soft": "#F3FBFD",
         "card": "#FFFFFF",
         "accent": "#0077B6",
+        "accent_hover": "#065A86",
+        "success": "#19A974",
+        "success_hover": "#0F805A",
         "text_dark": "#1F2937",
-        "muted_text": "#6B7280"
+        "muted_text": "#6B7280",
+        "shadow": "#d1d5db"
     }
 
     ctk.set_appearance_mode("light")
@@ -24,117 +26,91 @@ def cadastro_usuario(nome_usuario):
     # =========================================
     app = ctk.CTk()
     app.title("Cadastro de Usuário — Sistema Hospitalar")
-
     app.update_idletasks()
-    largura = app.winfo_screenwidth()
-    altura = app.winfo_screenheight()
+    largura, altura = app.winfo_screenwidth(), app.winfo_screenheight()
     app.geometry(f"{largura}x{altura}+0+0")
     app.configure(fg_color=PALETTE["soft"])
-
-    app.grid_columnconfigure(1, weight=1)
+    app.grid_columnconfigure(0, weight=1)
     app.grid_rowconfigure(1, weight=1)
 
     # =========================================
-    # BARRA SUPERIOR (IGUAL À RECEPÇÃO)
+    # BARRA SUPERIOR
     # =========================================
-    header = ctk.CTkFrame(app, fg_color=PALETTE["primary"], height=70)
-    header.grid(row=0, column=0, columnspan=2, sticky="nsew")
-
+    header = ctk.CTkFrame(app, fg_color=PALETTE["primary"], height=90, corner_radius=0)
+    header.grid(row=0, column=0, sticky="nsew")
     header.grid_columnconfigure(0, weight=1)
-    header.grid_columnconfigure(1, weight=1)
 
     ctk.CTkLabel(
         header,
         text="CADASTRO DE USUÁRIO",
-        font=ctk.CTkFont(size=26, weight="bold"),
+        font=ctk.CTkFont(size=30, weight="bold"),
         text_color="white"
-    ).grid(row=0, column=0, sticky="w", padx=20, pady=(10, 0))
+    ).grid(row=0, column=0, sticky="w", padx=30, pady=(20, 0))
 
     ctk.CTkLabel(
         header,
         text=f"Administrador: {nome_usuario}",
         font=ctk.CTkFont(size=14),
         text_color="white"
-    ).grid(row=1, column=0, sticky="w", padx=22)
-
-    # =========================================
-    # MENU LATERAL (IGUAL AO ESTILO DA RECEPÇÃO)
-    # =========================================
-    menu = ctk.CTkFrame(app, fg_color=PALETTE["sidebar"], width=230)
-    menu.grid(row=1, column=0, sticky="nsw")
-    menu.grid_propagate(False)
-
-    ctk.CTkLabel(
-        menu,
-        text="Menu",
-        font=ctk.CTkFont(size=18, weight="bold"),
-        text_color=PALETTE["text_dark"]
-    ).pack(anchor="w", padx=20, pady=(20, 10))
-
-    ctk.CTkButton(
-        menu,
-        text="Voltar ao Painel",
-        fg_color=PALETTE["accent"],
-        hover_color="#065A86",
-        text_color="white",
-        height=45,
-        command=lambda: abrir_tela_admin(nome_usuario, app)
-    ).pack(fill="x", padx=15, pady=5)
+    ).grid(row=1, column=0, sticky="w", padx=30, pady=(0, 15))
 
     # =========================================
     # ÁREA CENTRAL
     # =========================================
     main = ctk.CTkFrame(app, fg_color=PALETTE["soft"])
-    main.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
-
+    main.grid(row=1, column=0, sticky="nsew", padx=30, pady=30)
     main.grid_columnconfigure(0, weight=1)
 
-    title = ctk.CTkLabel(
+    ctk.CTkLabel(
         main,
         text="Informações do Novo Usuário",
-        font=ctk.CTkFont(size=24, weight="bold"),
+        font=ctk.CTkFont(size=28, weight="bold"),
         text_color=PALETTE["primary"]
+    ).pack(pady=(10, 25))
+
+    # =========================================
+    # CARD CENTRAL COM TAMANHO MENOR
+    # =========================================
+    card = ctk.CTkFrame(
+        main, fg_color=PALETTE["card"], corner_radius=18, 
+        border_width=1, border_color=PALETTE["shadow"]
     )
-    title.pack(pady=(10, 20))
-
-    # =========================================
-    # CARD CENTRAL
-    # =========================================
-    card = ctk.CTkFrame(main, fg_color=PALETTE["card"], corner_radius=14)
-    card.pack(fill="both", expand=True, padx=50, pady=10)
-
+    card.pack(padx=60, pady=20)  # deixa menor e centralizado
     card.grid_columnconfigure(0, weight=1)
     card.grid_columnconfigure(1, weight=1)
 
     def label(texto):
-        return ctk.CTkLabel(card, text=texto, text_color=PALETTE["muted_text"], font=ctk.CTkFont(size=15))
+        return ctk.CTkLabel(
+            card, text=texto, text_color=PALETTE["muted_text"], font=ctk.CTkFont(size=15)
+        )
 
     label("Nome Completo:").grid(row=0, column=0, sticky="w", pady=12, padx=20)
-    ent_nome = ctk.CTkEntry(card, height=38, placeholder_text="Digite o nome completo")
+    ent_nome = ctk.CTkEntry(card, height=42, placeholder_text="Digite o nome completo", corner_radius=10, border_width=1, border_color=PALETTE["shadow"])
     ent_nome.grid(row=0, column=1, pady=12, padx=20, sticky="ew")
 
     label("Login (usuário):").grid(row=1, column=0, sticky="w", pady=12, padx=20)
-    ent_login = ctk.CTkEntry(card, height=38, placeholder_text="Digite o login")
+    ent_login = ctk.CTkEntry(card, height=42, placeholder_text="Digite o login", corner_radius=10, border_width=1, border_color=PALETTE["shadow"])
     ent_login.grid(row=1, column=1, pady=12, padx=20, sticky="ew")
 
     label("Senha:").grid(row=2, column=0, sticky="w", pady=12, padx=20)
-    ent_senha = ctk.CTkEntry(card, height=38, show="*", placeholder_text="Digite a senha")
+    ent_senha = ctk.CTkEntry(card, height=42, show="*", placeholder_text="Digite a senha", corner_radius=10, border_width=1, border_color=PALETTE["shadow"])
     ent_senha.grid(row=2, column=1, pady=12, padx=20, sticky="ew")
 
     label("Tipo de Usuário:").grid(row=3, column=0, sticky="w", pady=12, padx=20)
     ent_tipo = ctk.CTkOptionMenu(
         card,
         values=["Medico", "Enfermeiro", "Recepcao"],
-        width=240,
+        width=250,
         fg_color=PALETTE["accent"],
         button_color=PALETTE["accent"],
         text_color="white",
-        button_hover_color="#065A86"
+        button_hover_color=PALETTE["accent_hover"],
+        corner_radius=10
     )
     ent_tipo.grid(row=3, column=1, pady=12, padx=20, sticky="w")
 
     # =========================================
-    # FUNÇÕES ORIGINAIS (SEM ALTERAÇÕES)
+    # FUNÇÕES ORIGINAIS
     # =========================================
     def gerar_crm(cursor):
         cursor.execute("SELECT COUNT(*) FROM medicos")
@@ -203,7 +179,7 @@ def cadastro_usuario(nome_usuario):
             conn.close()
 
     # =========================================
-    # BOTÕES
+    # BOTÕES MODERNOS
     # =========================================
     btn_frame = ctk.CTkFrame(card, fg_color=PALETTE["card"])
     btn_frame.grid(row=5, column=0, columnspan=2, pady=25)
@@ -212,25 +188,27 @@ def cadastro_usuario(nome_usuario):
         btn_frame,
         text="Confirmar Cadastro",
         fg_color=PALETTE["accent"],
-        hover_color="#065A86",
+        hover_color=PALETTE["accent_hover"],
         text_color="white",
         width=260,
         height=45,
         font=ctk.CTkFont(size=16, weight="bold"),
+        corner_radius=12,
         command=cadastrar
-    ).pack(side="left", padx=12)
+    ).pack(side="left", padx=10)
 
     ctk.CTkButton(
         btn_frame,
         text="Voltar",
-        fg_color="#19A974",
-        hover_color="#0F805A",
+        fg_color=PALETTE["success"],
+        hover_color=PALETTE["success_hover"],
         text_color="white",
         width=200,
         height=45,
         font=ctk.CTkFont(size=15, weight="bold"),
+        corner_radius=12,
         command=lambda: abrir_tela_admin(nome_usuario, app)
-    ).pack(side="left", padx=12)
+    ).pack(side="left", padx=10)
 
     # =========================================
     # FOOTER
@@ -241,6 +219,6 @@ def cadastro_usuario(nome_usuario):
         font=ctk.CTkFont(size=12),
         text_color=PALETTE["muted_text"]
     )
-    footer.grid(row=2, column=0, columnspan=2, pady=6)
+    footer.grid(row=2, column=0, pady=10)
 
     return app
