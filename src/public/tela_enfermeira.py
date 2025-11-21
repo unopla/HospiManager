@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 from db import conectar
 from datetime import datetime
+from funcoes_tela import voltar_para_login
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
@@ -232,6 +233,13 @@ def criar_tela_enfermeira(nome_usuario):
 
     ctk.CTkButton(form_frame, text="Salvar Triagem", fg_color=PALETTE["primary"],
                   command=salvar_triagem).grid(row=10, column=0, padx=6, pady=12, sticky="w")
+    
+    ctk.CTkButton(app, text="Sair", fg_color="#AA0000", hover_color="#770000", command=lambda: voltar_para_login(app)).place(relx=0.92, rely=0.03)
+    
+    footer = ctk.CTkFrame(app, height=30, fg_color=PALETTE["primary"])
+    footer.grid(row=2, column=0, columnspan=2, sticky="nsew")
+    ctk.CTkLabel(footer, text="© Hospi Manager  •  Sistema de demonstração",
+                 text_color="white", font=ctk.CTkFont(size=10)).place(x=12, y=6)
 
     # ============================
     # INICIALIZAÇÃO

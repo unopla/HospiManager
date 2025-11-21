@@ -33,3 +33,8 @@ def abrir_tela_adicionar_usuario(nome_usuario, tela_atual):
     tela_atual.withdraw()
     tela = cadastro_usuario(nome_usuario)
     tela.mainloop()
+    
+def voltar_para_login(janela_atual):
+    from main import TelaLogin
+    janela_atual.destroy()   # fecha a tela atual
+    TelaLogin().mainloop()   # reabre a tela principal
