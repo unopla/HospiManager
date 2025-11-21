@@ -9,24 +9,19 @@ ctk.set_default_color_theme("blue")
 
 
 def criar_tela_enfermeira(nome_usuario):
-    # ============================
-    # CONFIGURAÇÕES PRINCIPAIS
-    # ============================
-    APP_WIDTH, APP_HEIGHT = 1280, 720
     PALETTE = {
         "primary": "#005BBB",
         "accent": "#19A974",
-        "soft": "#F3FBFD",
+        "soft": "#E8F4FA",
         "card": "#FFFFFF",
         "muted_text": "#6B7280",
-        "highlight": "#D9F3FF"
+        "highlight": "#D9F3FF",
+        "background": "#F3FBFD"
     }
 
     paciente_selecionado = {"id": "", "nome": ""}
 
-    # ============================
-    # FUNÇÕES AUXILIARES
-    # ============================
+    # ===== BUSCAR PACIENTES ==============================================
     def buscar_pacientes_nao_triados():
         conn = conectar()
         if not conn:
@@ -44,6 +39,7 @@ def criar_tela_enfermeira(nome_usuario):
         conn.close()
         return rows
 
+    # ===== CLASSIFICAÇÃO DE RISCO ========================================
     def classificar_risco(temp, sat, fc, fr, dor, sintomas):
         sintomas = sintomas.lower() if sintomas else ""
         if sat is not None and sat < 85: return "Emergência"
@@ -61,30 +57,43 @@ def criar_tela_enfermeira(nome_usuario):
         if dor >= 4: return "Pouco urgente"
         return "Nada urgente"
 
-    # ============================
-    # CONFIGURAÇÃO DA INTERFACE
-    # ============================
+    # ===== JANELA PRINCIPAL ==============================================
     app = ctk.CTk()
     app.title(f"Triagem — {nome_usuario}")
-    app.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
+
+    # ===== TELA CHEIA SEGURA =============================================
+    largura_tela = app.winfo_screenwidth()
+    altura_tela = app.winfo_screenheight()
+    app.geometry(f"{largura_tela}x{altura_tela}+0+0")
+    app.resizable(False, False)  # bloqueia redimensionamento
+
+    app.configure(fg_color=PALETTE["background"])
     app.grid_rowconfigure(1, weight=1)
     app.grid_columnconfigure(1, weight=1)
 
-    # Header
-    header = ctk.CTkFrame(app, fg_color=PALETTE["primary"], height=50)
+    # ===== HEADER ========================================================
+    header = ctk.CTkFrame(app, fg_color=PALETTE["primary"], height=55)
     header.grid(row=0, column=0, columnspan=2, sticky="nsew")
-    ctk.CTkLabel(header, text=f"Triagem - Bem-vinda(o), {nome_usuario}",
-                 font=("Segoe UI", 16, "bold"), text_color="white").place(relx=0.02, rely=0.5, anchor="w")
-    clock_lbl = ctk.CTkLabel(header, text=datetime.now().strftime("%d/%m/%Y %H:%M"),
-                             font=("Segoe UI", 10), text_color="white")
-    clock_lbl.place(relx=0.95, rely=0.5, anchor="e")
 
-    # Sidebar
-    sidebar = ctk.CTkFrame(app, width=250, fg_color=PALETTE["soft"])
-    sidebar.grid(row=1, column=0, sticky="nsew", padx=(12, 6), pady=12)
+    ctk.CTkLabel(header, text=f"Triagem - Bem-vinda(o), {nome_usuario}",
+                 font=("Segoe UI", 18, "bold"), text_color="white")\
+        .place(relx=0.02, rely=0.5, anchor="w")
+
+    hora_label = ctk.CTkLabel(header, font=("Segoe UI", 11), text_color="white")
+    hora_label.place(relx=0.95, rely=0.5, anchor="e")
+
+    def atualizar_hora():
+        hora_label.configure(text=datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        hora_label.after(1000, atualizar_hora)
+
+    atualizar_hora()
+
+    # ===== SIDEBAR ========================================================
+    sidebar = ctk.CTkFrame(app, width=260, fg_color=PALETTE["soft"], corner_radius=0)
+    sidebar.grid(row=1, column=0, sticky="nsew")
     sidebar.grid_propagate(False)
-    ctk.CTkLabel(sidebar, text="Fila de Triagem", font=("Segoe UI", 14, "bold"),
-                 text_color=PALETTE["primary"]).pack(padx=12, pady=(12, 6), anchor="w")
+    ctk.CTkLabel(sidebar, text="Fila de Triagem", font=("Segoe UI", 15, "bold"),
+                 text_color=PALETTE["primary"]).pack(padx=12, pady=(15, 8), anchor="w")
 
     fila_pacientes = buscar_pacientes_nao_triados()
     fila_labels = []
@@ -95,29 +104,42 @@ def criar_tela_enfermeira(nome_usuario):
         fila_labels.clear()
         for i, paciente in enumerate(fila_pacientes):
             pid, nome = paciente
-            lbl = ctk.CTkLabel(sidebar, text=f"{i+1}. {nome}", font=("Segoe UI", 12))
-            lbl.pack(padx=12, pady=2, anchor="w")
+            lbl = ctk.CTkLabel(sidebar, text=f"{i+1}. {nome}", font=("Segoe UI", 13))
+            lbl.pack(padx=12, pady=3, anchor="w")
             fila_labels.append(lbl)
 
     atualizar_fila_visual()
 
-    # Conteúdo principal
+    # Botão sair
+    exit_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
+    exit_frame.pack(side="bottom", pady=20)
+    ctk.CTkButton(exit_frame, text="Sair", width=180, height=40,
+                  fg_color="#AA0000", hover_color="#770000",
+                  command=lambda: voltar_para_login(app))\
+        .pack()
+
+    # ===== ÁREA PRINCIPAL ================================================
     content = ctk.CTkFrame(app, fg_color=PALETTE["soft"])
-    content.grid(row=1, column=1, sticky="nsew", padx=(6, 12), pady=12)
+    content.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
     content.grid_rowconfigure(0, weight=1)
     content.grid_columnconfigure(0, weight=1)
 
-    form_frame = ctk.CTkFrame(content, fg_color=PALETTE["card"], corner_radius=12)
-    form_frame.pack(fill="both", expand=True, padx=12, pady=12)
+    center_frame = ctk.CTkFrame(content, fg_color="transparent")
+    center_frame.grid(row=0, column=0, sticky="nsew")
+    center_frame.grid_rowconfigure(0, weight=1)
+    center_frame.grid_columnconfigure(0, weight=1)
 
-    ctk.CTkLabel(form_frame, text="Paciente:", font=("Segoe UI", 14, "bold")).grid(row=0, column=0, sticky="w", padx=6, pady=6)
+    form_frame = ctk.CTkFrame(center_frame, fg_color=PALETTE["card"], corner_radius=10)
+    form_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+    # ===== CAMPOS ==========================================================
+    ctk.CTkLabel(form_frame, text="Paciente:", font=("Segoe UI", 15, "bold")).grid(row=0, column=0, sticky="w", padx=8, pady=8)
     selected_nome_lbl = ctk.CTkLabel(form_frame, text="", font=("Segoe UI", 14, "bold"), text_color=PALETTE["primary"])
     selected_nome_lbl.grid(row=0, column=1, sticky="w", padx=6, pady=6)
 
-    # Criar campos
     def criar_campo(label_text, row, col):
         ctk.CTkLabel(form_frame, text=label_text).grid(row=row, column=col, sticky="w", padx=6, pady=(6, 0))
-        entry = ctk.CTkEntry(form_frame)
+        entry = ctk.CTkEntry(form_frame, height=35)
         entry.grid(row=row+1, column=col, padx=6, pady=(0, 6), sticky="ew")
         return entry
 
@@ -134,34 +156,34 @@ def criar_tela_enfermeira(nome_usuario):
     dor_valor_lbl.grid(row=6, column=2, sticky="w", padx=6)
 
     ctk.CTkLabel(form_frame, text="Sintomas (resuma)").grid(row=7, column=0, sticky="w", padx=6, pady=(6,0))
-    sintomas_entry = ctk.CTkEntry(form_frame)
-    sintomas_entry.grid(row=8, column=0, columnspan=3, padx=6, pady=(0,6), sticky="ew")
+    sintomas_entry = ctk.CTkEntry(form_frame, height=35)
+    sintomas_entry.grid(row=8, column=0, columnspan=3, padx=6, pady=6, sticky="ew")
 
-    classificacao_label = ctk.CTkLabel(form_frame, text="Classificação prevista: —", font=("Segoe UI", 12, "bold"))
+    classificacao_label = ctk.CTkLabel(form_frame, text="Classificação prevista: —",
+                                       font=("Segoe UI", 13, "bold"))
     classificacao_label.grid(row=9, column=0, columnspan=3, sticky="w", padx=6, pady=12)
 
-    # ============================
-    # FUNÇÕES DE TRIAGEM
-    # ============================
+    # ===== CLASSIFICAÇÃO AUTOMÁTICA =======================================
     def atualizar_classificacao():
         try: temp = float(temp_entry.get()) if temp_entry.get() else None
-        except: temp=None
+        except: temp = None
         try: sat = float(sat_entry.get()) if sat_entry.get() else None
-        except: sat=None
+        except: sat = None
         try: fc = int(fc_entry.get()) if fc_entry.get() else None
-        except: fc=None
+        except: fc = None
         try: fr = int(fr_entry.get()) if fr_entry.get() else None
-        except: fr=None
+        except: fr = None
         dor = int(dor_slider.get())
         sintomas_txt = sintomas_entry.get()
         risco = classificar_risco(temp, sat, fc, fr, dor, sintomas_txt)
         classificacao_label.configure(text=f"Classificação prevista: {risco}")
         return risco
 
-    dor_slider.configure(command=lambda val: dor_valor_lbl.configure(text=str(int(val))) or atualizar_classificacao())
+    dor_slider.configure(command=lambda v: dor_valor_lbl.configure(text=str(int(v))) or atualizar_classificacao())
     for ent in (temp_entry, sat_entry, fc_entry, fr_entry, sintomas_entry):
         ent.bind("<KeyRelease>", lambda e: atualizar_classificacao())
 
+    # ===== PRÓXIMO PACIENTE ================================================
     def mostrar_proximo():
         if not fila_pacientes:
             messagebox.showinfo("Fila vazia", "Não há mais pacientes aguardando triagem.")
@@ -169,14 +191,10 @@ def criar_tela_enfermeira(nome_usuario):
             selected_nome_lbl.configure(text="")
             atualizar_fila_visual()
             return
-
-        paciente = fila_pacientes.pop(0)
-        pid, nome = paciente
+        pid, nome = fila_pacientes.pop(0)
         paciente_selecionado["id"] = pid
         paciente_selecionado["nome"] = nome
         selected_nome_lbl.configure(text=nome)
-
-        # Limpar campos
         for ent in [temp_entry, sat_entry, fc_entry, fr_entry, pressao_entry, sintomas_entry]:
             ent.delete(0, "end")
         dor_slider.set(0)
@@ -184,6 +202,7 @@ def criar_tela_enfermeira(nome_usuario):
         atualizar_classificacao()
         atualizar_fila_visual()
 
+    # ===== SALVAR TRIAGEM ================================================
     def salvar_triagem():
         if not paciente_selecionado["id"]:
             messagebox.showwarning("Atenção", "Selecione um paciente primeiro!")
@@ -191,24 +210,24 @@ def criar_tela_enfermeira(nome_usuario):
         try: temperatura = float(temp_entry.get()) if temp_entry.get() else None
         except: messagebox.showerror("Erro", "Temperatura inválida"); return
         try: saturacao = float(sat_entry.get()) if sat_entry.get() else None
-        except: saturacao=None
+        except: saturacao = None
         try: fc = int(fc_entry.get()) if fc_entry.get() else None
-        except: fc=None
+        except: fc = None
         try: fr = int(fr_entry.get()) if fr_entry.get() else None
-        except: fr=None
+        except: fr = None
         pressao = pressao_entry.get()
         dor = int(dor_slider.get())
         sintomas_txt = sintomas_entry.get()
         risco_nome = atualizar_classificacao()
-
         conn = conectar()
-        if not conn: messagebox.showerror("Erro","Falha na conexão"); return
+        if not conn:
+            messagebox.showerror("Erro", "Falha na conexão")
+            return
         cur = conn.cursor()
         cur.execute("SELECT id_classificacao, nome FROM classificacao_urgencia")
         data = cur.fetchall()
-        map_class = {nome:idc for idc,nome in data}
+        map_class = {nome: idc for idc, nome in data}
         id_class = map_class.get(risco_nome, 1)
-
         try:
             cur.execute("SELECT id_usuario FROM usuarios WHERE nome=%s", (nome_usuario,))
             res = cur.fetchone()
@@ -216,12 +235,15 @@ def criar_tela_enfermeira(nome_usuario):
                 messagebox.showerror("Erro", f"Profissional '{nome_usuario}' não cadastrado.")
                 return
             id_profissional = res[0]
-
             cur.execute("""
                 INSERT INTO triagem (id_paciente, pressao_arterial, frequencia_cardiaca, frequencia_respiratoria,
                 saturacao, temperatura, dor_escala, sintomas, id_classificacao, id_setor, id_profissional, horario_chegada)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,1,%s,NOW())
-            """, (paciente_selecionado["id"], pressao, fc, fr, saturacao, temperatura, dor, sintomas_txt, id_class, id_profissional))
+            """, (
+                paciente_selecionado["id"], pressao, fc, fr,
+                saturacao, temperatura, dor, sintomas_txt,
+                id_class, id_profissional
+            ))
             conn.commit()
             messagebox.showinfo("Sucesso", "Triagem salva com sucesso!")
             mostrar_proximo()
@@ -231,18 +253,19 @@ def criar_tela_enfermeira(nome_usuario):
             cur.close()
             conn.close()
 
+    # centralizar botão salvar
     ctk.CTkButton(form_frame, text="Salvar Triagem", fg_color=PALETTE["primary"],
-                  command=salvar_triagem).grid(row=10, column=0, padx=6, pady=12, sticky="w")
-    
-    ctk.CTkButton(app, text="Sair", fg_color="#AA0000", hover_color="#770000", command=lambda: voltar_para_login(app)).place(relx=0.92, rely=0.03)
-    
-    footer = ctk.CTkFrame(app, height=30, fg_color=PALETTE["primary"])
-    footer.grid(row=2, column=0, columnspan=2, sticky="nsew")
-    ctk.CTkLabel(footer, text="© Hospi Manager  •  Sistema de demonstração",
-                 text_color="white", font=ctk.CTkFont(size=10)).place(x=12, y=6)
+                  height=40, width=200, command=salvar_triagem)\
+        .grid(row=10, column=0, columnspan=3, pady=14)
 
-    # ============================
-    # INICIALIZAÇÃO
-    # ============================
+    # ===== FOOTER ===========================================================
+    footer = ctk.CTkFrame(app, height=32, fg_color=PALETTE["primary"])
+    footer.grid(row=2, column=0, columnspan=2, sticky="nsew")
+    ctk.CTkLabel(footer,
+                 text="© Hospi Manager — Sistema Clínico de Gestão",
+                 text_color="white",
+                 font=("Segoe UI", 11))\
+        .place(relx=0.5, rely=0.5, anchor="center")
+
     mostrar_proximo()
     return app
