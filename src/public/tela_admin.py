@@ -1,72 +1,60 @@
-# public/tela_admin.py — Versão ainda mais elegante, profissional e com estilo hospital universal
-# Este estilo pode ser aplicado em QUALQUER tela do sistema.
+# public/tela_admin.py — Correção de pesquisa (usar search_entry.get())
 
 import customtkinter as ctk
 from tkinter import messagebox
 from db import conectar
-from funcoes_tela import abrir_tela_adicionar_usuario
-from funcoes_tela import voltar_para_login
+from funcoes_tela import abrir_tela_adicionar_usuario, voltar_para_login
+
 
 # ==================================================================
-# 🔷 ESTILO GLOBAL — UTILIZE EM TODOS OS SEUS ARQUIVOS
-# Basta importar este estilo no futuro e manter tudo com identidade única.
+# 🔷 ESTILO GLOBAL
 # ==================================================================
 HOSPITAL_STYLE = {
-    "primary": "#0277BD",          # Azul hospitalar
+    "primary": "#0277BD",
     "primary_dark": "#015C92",
-
-    "secondary": "#81D4FA",        # Azul claro calmante
+    "secondary": "#81D4FA",
     "secondary_dark": "#4FC3F7",
-
-    "background": "#E9F4FB",       # Fundo clínico limpo
-    "card": "#FFFFFF",             # Cards e painéis
-
-    "text_strong": "#003B73",      # Títulos fortes
-    "text_soft": "#546E7A",        # Texto secundário
-
-    "danger": "#D32F2F",           # Ações perigosas
+    "background": "#E9F4FB",
+    "card": "#FFFFFF",
+    "text_strong": "#003B73",
+    "text_soft": "#546E7A",
+    "danger": "#D32F2F",
     "danger_dark": "#9A0007",
-
-    "line": "#C9E3F5",             # Delicadas divisões
-    "highlight": "#DFF3FF"         # Seleção suave
+    "line": "#C9E3F5",
+    "highlight": "#DFF3FF"
 }
 
-# Fonte padrão do sistema
 DEFAULT_FONT = ("Segoe UI", 15)
 DEFAULT_BOLD = ("Segoe UI", 15, "bold")
 TITLE_FONT = ("Segoe UI", 26, "bold")
 SUBTITLE_FONT = ("Segoe UI", 18, "bold")
 
+
 # ==================================================================
-# TELA ADMIN
+# 🔹 TELA ADMIN
 # ==================================================================
 def criar_tela_admin(nome_usuario):
 
     ctk.set_appearance_mode("light")
 
-    # ======= JANELA =======
+    # ===== JANELA =====
     janela = ctk.CTk()
     janela.title("Painel Administrativo — Hospi Manager")
-    janela.after(100, lambda: janela.state("zoomed"))  # Garante abrir maximizado com botões de minimizar/fechar
+    janela.after(100, lambda: janela.state("zoomed"))
     janela.configure(fg_color=HOSPITAL_STYLE["background"])
 
-    # ======= CABEÇALHO SUPERIOR =======
-    header = ctk.CTkFrame(
-        janela,
-        fg_color=HOSPITAL_STYLE["primary"],
-        height=80,
-        corner_radius=0
-    )
+    # ===== CABEÇALHO =====
+    header = ctk.CTkFrame(janela, fg_color=HOSPITAL_STYLE["primary"], height=80, corner_radius=0)
     header.pack(fill="x")
 
     ctk.CTkLabel(
         header,
-        text=f"Bem‑vindo, {nome_usuario}  —  Administrador",
+        text=f"Bem-vindo, {nome_usuario}  —  Administrador",
         font=TITLE_FONT,
         text_color="white"
     ).place(relx=0.03, rely=0.5, anchor="w")
 
-    # ======= ÁREA PRINCIPAL =======
+    # ===== ÁREA PRINCIPAL =====
     main_frame = ctk.CTkFrame(janela, fg_color=HOSPITAL_STYLE["card"], corner_radius=25)
     main_frame.pack(fill="both", expand=True, padx=30, pady=25)
 
@@ -77,9 +65,8 @@ def criar_tela_admin(nome_usuario):
         text_color=HOSPITAL_STYLE["text_strong"]
     ).pack(anchor="w", padx=25, pady=(20, 5))
 
-    # ======= CAMPO DE PESQUISA =======
-    search_var = ctk.StringVar()
-
+    # ===== CAMPO DE PESQUISA =====
+    search_var = ctk.StringVar()  # mantemos StringVar, mas leremos direto do entry
     search_entry = ctk.CTkEntry(
         main_frame,
         textvariable=search_var,
@@ -88,49 +75,78 @@ def criar_tela_admin(nome_usuario):
         placeholder_text="Pesquisar por ID, nome ou tipo...",
         font=DEFAULT_FONT
     )
-    search_entry.pack(anchor="w", padx=25, pady=(0, 15))
+    search_entry.pack(anchor="w", padx=25, pady=(0, 6))
+    search_entry.focus_set()
 
-    # ======= LISTA SCROLL =======
-    lista_frame = ctk.CTkScrollableFrame(
+    # contador / feedback de resultados (mostra também o termo atual)
+    results_label = ctk.CTkLabel(
         main_frame,
-        fg_color=HOSPITAL_STYLE["background"],
-        corner_radius=15
+        text="",
+        font=("Segoe UI", 12),
+        text_color=HOSPITAL_STYLE["text_soft"]
     )
+    results_label.pack(anchor="w", padx=25, pady=(0, 12))
+
+    # ===== LISTA =====
+    lista_frame = ctk.CTkScrollableFrame(main_frame, fg_color=HOSPITAL_STYLE["background"], corner_radius=15)
     lista_frame.pack(fill="both", expand=True, padx=25, pady=15)
 
     # ==================================================================
-    # FUNÇÃO DE CARREGAR LISTA (NÃO ALTERADA — APENAS ESTILIZADA)
+    # 🔍 FUNÇÃO DE CARREGAR + FILTRAR USUÁRIOS (USANDO search_entry.get())
     # ==================================================================
     def carregar_usuarios(event=None):
+        # limpa antes de recarregar
         for widget in lista_frame.winfo_children():
             widget.destroy()
 
+        # pega do banco
         conn = conectar()
         resultado = []
         if conn:
             cursor = conn.cursor()
             try:
-                cursor.execute("SELECT id_usuario, nome, tipo FROM usuarios WHERE tipo != 'admin' ORDER BY nome")
+                cursor.execute(
+                    "SELECT id_usuario, nome, tipo FROM usuarios "
+                    "WHERE tipo != 'admin' ORDER BY nome"
+                )
                 resultado = cursor.fetchall()
             except Exception as e:
-                messagebox.showerror("Erro", f"Falha ao buscar usuários: {e}")
+                messagebox.showerror("Erro", f"Falha ao buscar usuários:\n{e}")
             finally:
                 try: cursor.close()
                 except: pass
                 try: conn.close()
                 except: pass
+        else:
+            messagebox.showerror("Erro", "Falha na conexão com o banco de dados.")
+            results_label.configure(text="0 resultados — conexão falhou")
+            return
 
-        termo = search_var.get().lower().strip()
+        # Lê direto do entry (mais confiável em algumas versões do CTk)
+        termo = (search_entry.get() or "").lower().strip()
 
+        # Debug opcional: descomente a próxima linha para ver 'resultado' no console
+        # print("DEBUG - resultado raw:", resultado)
+
+        total_mostrados = 0
+
+        # monta lista filtrada
         for user in resultado:
             uid, nome, tipo = user
-            if termo not in f"{uid} {nome} {tipo}".lower():
+
+            # garante que uid seja string ao comparar
+            linha = f"{str(uid)} {nome} {tipo}".lower()
+
+            # se termo vazio → mostrar todos; se termo não vazio e não encontrado → pular
+            if termo and (termo not in linha):
                 continue
+
+            total_mostrados += 1
 
             row = ctk.CTkFrame(lista_frame, fg_color=HOSPITAL_STYLE["card"], corner_radius=15)
             row.pack(fill="x", pady=7, padx=8)
 
-            # DETALHES
+            # detalhar
             def abrir_det(p=user):
                 messagebox.showinfo("Usuário", f"ID: {p[0]}\nNome: {p[1]}\nTipo: {p[2]}")
 
@@ -147,24 +163,28 @@ def criar_tela_admin(nome_usuario):
             )
             info_button.pack(side="left", fill="x", expand=True, padx=(10, 6), pady=6)
 
-            # APAGAR
+            # apagar
             def apagar_usuario(id_usuario=uid, nome_local=nome):
-                if messagebox.askyesno("Confirmar", f"Deseja realmente apagar {nome_local}?"):
-                    c = conectar()
-                    if not c:
-                        messagebox.showerror("Erro", "Falha ao conectar ao banco.")
-                        return
-                    cur = c.cursor()
-                    try:
-                        cur.execute("DELETE FROM usuarios WHERE id_usuario=%s", (id_usuario,))
-                        c.commit()
-                        cur.close(); c.close()
-                        messagebox.showinfo("Sucesso", "Usuário removido.")
-                        carregar_usuarios()
-                    except Exception as e:
-                        try: cur.close(); c.close()
-                        except: pass
-                        messagebox.showerror("Erro", f"Falha ao apagar: {e}")
+                if not messagebox.askyesno("Confirmar", f"Deseja realmente apagar {nome_local}?"):
+                    return
+
+                c = conectar()
+                if not c:
+                    messagebox.showerror("Erro", "Não foi possível conectar ao banco.")
+                    return
+
+                cur = c.cursor()
+                try:
+                    cur.execute("DELETE FROM usuarios WHERE id_usuario = %s", (id_usuario,))
+                    c.commit()
+                    cur.close()
+                    c.close()
+                    messagebox.showinfo("Sucesso", "Usuário removido.")
+                    carregar_usuarios()
+                except Exception as e:
+                    try: cur.close(); c.close()
+                    except: pass
+                    messagebox.showerror("Erro", f"Falha ao apagar usuário:\n{e}")
 
             delete_button = ctk.CTkButton(
                 row,
@@ -178,8 +198,27 @@ def criar_tela_admin(nome_usuario):
             )
             delete_button.pack(side="right", padx=(6, 10), pady=6)
 
+        # mostra feedback de quantos resultados foram exibidos e o termo atual
+        if termo:
+            results_label.configure(text=f"{total_mostrados} resultado(s) para: '{termo}'")
+        else:
+            results_label.configure(text=f"{total_mostrados} resultado(s) — mostrando todos")
+
+    # pesquisa funcionando ao digitar — usamos bind e também trace como redundância
+    try:
+        # trace ainda presente, mas leitura principal vem do entry
+        search_var.trace_add("write", lambda *args: carregar_usuarios())
+    except Exception:
+        try:
+            search_var.trace("w", lambda *args: carregar_usuarios())
+        except Exception:
+            pass
+
+    # binds para eventos (KeyRelease e Enter)
     search_entry.bind("<KeyRelease>", carregar_usuarios)
-    carregar_usuarios()
+    search_entry.bind("<Return>", carregar_usuarios)
+
+    carregar_usuarios()  # carrega inicial
 
     # ==================================================================
     # BOTÕES INFERIORES
@@ -215,11 +254,6 @@ def criar_tela_admin(nome_usuario):
     footer = ctk.CTkFrame(janela, height=35, fg_color=HOSPITAL_STYLE["primary"], corner_radius=0)
     footer.pack(fill="x", side="bottom")
 
-    ctk.CTkLabel(
-        footer,
-        text="© Hospi Manager — Sistema Clínico de Gestão",
-        text_color="white",
-        font=("Segoe UI", 12)
-    ).pack(pady=5)
+    ctk.CTkLabel(footer, text="© Hospi Manager — Sistema Clínico de Gestão", text_color="white", font=("Segoe UI", 12)).pack(pady=5)
 
     return janela
