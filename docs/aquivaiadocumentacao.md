@@ -65,7 +65,7 @@ A estrutura foi planejada para ser robusta e expansível, permitindo o crescimen
 
 ---
 
-## **💻 Interface e Fluxo de Uso**
+## **Interface e Fluxo de Uso**
 
 Desenvolvido com **Python + CustomTkinter**, o sistema oferece uma interface:
 
