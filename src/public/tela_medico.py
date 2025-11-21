@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 from db import conectar
 from datetime import datetime
 from funcoes_tela import voltar_para_login
@@ -106,7 +106,7 @@ def criar_tela_medico(nome_usuario):
     diagnostico_txt.pack(fill="x", padx=16, pady=8)
 
     # -------------------
-    # PROCEDIMENTOS + MEDICAÇÕES
+    # PROCEDIMENTOS + MEDICAÇÕES (Somente caixas de texto)
     # -------------------
     lists_frame = ctk.CTkFrame(paciente_frame, fg_color=COLORS["card"])
     lists_frame.pack(fill="x", padx=16, pady=12)
@@ -123,23 +123,6 @@ def criar_tela_medico(nome_usuario):
     ctk.CTkLabel(med_frame, text="Medicações Prescritas", font=("Arial", 13, "bold")).pack(anchor="w", padx=6)
     med_listbox = ctk.CTkTextbox(med_frame, height=110, corner_radius=10)
     med_listbox.pack(fill="both", expand=True, padx=6, pady=6)
-
-    btns_small = ctk.CTkFrame(paciente_frame, fg_color=COLORS["card"])
-    btns_small.pack(fill="x", padx=16, pady=10)
-
-    def add_procedimento():
-        texto = simpledialog.askstring("Adicionar Procedimento", "Descrição do procedimento/exame:")
-        if texto:
-            proc_listbox.insert("end", texto + "\n")
-
-    def add_medicacao():
-        texto = simpledialog.askstring("Prescrever Medicamento", "Ex: Paracetamol 500mg, 8/8h via oral")
-        if texto:
-            med_listbox.insert("end", texto + "\n")
-
-    ctk.CTkButton(btns_small, text="Adicionar Procedimento", fg_color=COLORS["primary"], command=add_procedimento).pack(side="left", padx=6)
-    ctk.CTkButton(btns_small, text="Prescrever Medicação", fg_color=COLORS["primary"], command=add_medicacao).pack(side="left", padx=6)
-    ctk.CTkButton(btns_small, text="Ver Histórico", fg_color=COLORS["primary"], command=lambda: ver_historico()).pack(side="right", padx=6)
 
     # ===================
     # FUNÇÕES DE BANCO
@@ -190,12 +173,10 @@ def criar_tela_medico(nome_usuario):
             cur.close()
             conn.close()
 
-        # Atualiza fila
         lista_fila.delete("0.0", "end")
         for i, p in enumerate(pacientes):
             lista_fila.insert("end", f"{i+1}. {p['nome']} — {p['classificacao']}\n")
 
-        # Atualiza paciente atual
         if pacientes:
             p = pacientes[0]
             app.paciente_atual = p
@@ -239,9 +220,9 @@ def criar_tela_medico(nome_usuario):
             cursor = conn.cursor()
             id_med = localizar_id_medico(conn, nome_usuario)
             if id_med is None:
+                messagebox.showerror("Erro", "Não foi possível localizar o médico.")
                 return
 
-            # Inserções no banco
             cursor.execute("""
                 INSERT INTO atendimentos
                 (id_paciente, id_medico, id_triagem, diagnostico, conduta, tipo_atendimento, horario_inicio, horario_fim, status)
@@ -278,61 +259,16 @@ def criar_tela_medico(nome_usuario):
 
             messagebox.showinfo("Finalizado", f"Paciente {p['nome']} finalizado.")
 
-            # Limpar campos
             anamnese_txt.delete("0.0", "end")
             exame_txt.delete("0.0", "end")
             diagnostico_txt.delete("0.0", "end")
             proc_listbox.delete("0.0", "end")
             med_listbox.delete("0.0", "end")
 
-            # Atualizar fila
             atualizar_fila()
         finally:
             cursor.close()
             conn.close()
-
-    def ver_historico():
-        p = getattr(app, "paciente_atual", None)
-        if not p:
-            messagebox.showinfo("Fila vazia", "Nenhum paciente selecionado.")
-            return
-
-        conn = conectar()
-        if not conn:
-            messagebox.showerror("Erro", "Falha na conexão.")
-            return
-        cur = conn.cursor(dictionary=True)
-        try:
-            cur.execute("""
-                SELECT a.id_atendimento, a.horario_inicio, a.horario_fim, a.diagnostico, r.texto_relatorio
-                FROM atendimentos a
-                LEFT JOIN relatorios r ON r.id_atendimento = a.id_atendimento
-                WHERE a.id_paciente=%s
-                ORDER BY a.horario_inicio DESC
-                LIMIT 20
-            """, (p['id_paciente'],))
-            rows = cur.fetchall()
-        finally:
-            cur.close()
-            conn.close()
-
-        if not rows:
-            messagebox.showinfo("Histórico", "Nenhum atendimento anterior encontrado.")
-            return
-
-        texto = ""
-        for r in rows:
-            texto += f"Atendimento #{r['id_atendimento']} — {r['horario_inicio']}\n"
-            texto += f"Diagnóstico: {r['diagnostico']}\n"
-            if r.get('texto_relatorio'):
-                texto += f"Relatório: {r['texto_relatorio']}\n"
-            texto += "-"*40 + "\n"
-
-        hist_win = ctk.CTkToplevel(app)
-        hist_win.title(f"Histórico — {p['nome']}")
-        hist_txt = ctk.CTkTextbox(hist_win, width=900, height=500)
-        hist_txt.pack(fill="both", expand=True, padx=12, pady=12)
-        hist_txt.insert("end", texto)
 
     # -------------------
     # BOTÃO FINALIZAR

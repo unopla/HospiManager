@@ -1,2 +1,0 @@
-Primeiramente assim que abrir o programa aparecera a tela LOGIN, que possuira dois campos, Login e Senha, e os botões Mostrar Senha, que muda os asteriscos para letras,
-e Entrar, que ira confirmar se usuario existe, se existir passa para a proxima tela, senão ele pede novamente e informa que um dos campos está errado
