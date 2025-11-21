@@ -78,24 +78,16 @@ INSERT INTO setores (nome, descricao, localizacao) VALUES
 ('Observação', 'Pré-internação', 'Térreo - Bloco A');
 
 -- ============================================================
--- TABELA: especialidades
+-- TABELA: usuarios (Admin, Médico, Enfermeiro, Recepção)
 -- ============================================================
 
-CREATE TABLE especialidades (
-    id_especialidade INT AUTO_INCREMENT PRIMARY KEY,
-    especialidade VARCHAR(150) NOT NULL
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    login VARCHAR(50) UNIQUE,
+    senha_hash VARCHAR(255),
+    tipo ENUM('Admin','Medico','Enfermeiro','Recepcao') NOT NULL
 );
-
-INSERT INTO especialidades (especialidade) VALUES
-('Clínico Geral'),('Cardiologia'),('Dermatologia'),('Endocrinologia'),
-('Gastroenterologia'),('Geriatria'),('Ginecologia'),('Hematologia'),
-('Infectologia'),('Nefrologia'),('Neurocirurgia'),('Neurologia'),
-('Nutrologia'),('Obstetrícia'),('Oftalmologia'),('Oncologia'),
-('Ortopedia'),('Otorrinolaringologia'),('Pediatria'),('Pneumologia'),
-('Psiquiatria'),('Reumatologia'),('Urologia'),('Cirurgia Geral'),
-('Cirurgia Plástica'),('Cirurgia Vascular'),('Fisioterapia'),
-('Fonoaudiologia'),('Medicina do Trabalho'),('Medicina Esportiva'),
-('Anestesiologia'),('Radiologia'),('Traumatologia');
 
 -- ============================================================
 -- TABELA: medicos
@@ -106,25 +98,12 @@ CREATE TABLE medicos (
     id_usuario INT NOT NULL,
     nome VARCHAR(120) NOT NULL,
     crm VARCHAR(20) NOT NULL UNIQUE,
-    id_especialidade INT NOT NULL,
     telefone VARCHAR(20),
     email VARCHAR(120),
     horario_entrada TIME,
     horario_saida TIME,
     ativo BOOLEAN DEFAULT 1,
-    FOREIGN KEY (id_especialidade) REFERENCES especialidades(id_especialidade)
-);
-
--- ============================================================
--- TABELA: usuarios (Admin, Médico, Enfermeiro, Recepção)
--- ============================================================
-
-CREATE TABLE usuarios (
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(120) NOT NULL,
-    login VARCHAR(50) UNIQUE,
-    senha_hash VARCHAR(255),
-    tipo ENUM('Admin','Medico','Enfermeiro','Recepcao') NOT NULL
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -149,7 +128,7 @@ CREATE TABLE triagem (
     FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente),
     FOREIGN KEY (id_classificacao) REFERENCES classificacao_urgencia(id_classificacao),
     FOREIGN KEY (id_setor) REFERENCES setores(id_setor),
-    FOREIGN KEY (id_profissional) REFERENCES usuarios(id_usuario)
+    FOREIGN KEY (id_profissional) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -192,7 +171,7 @@ CREATE TABLE recepcionistas (
     id_recepcionista INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
     ativo BOOLEAN DEFAULT 1,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -205,7 +184,7 @@ CREATE TABLE enfermeiros (
     nome VARCHAR(120) NOT NULL,
     coren VARCHAR(30) UNIQUE,
     ativo BOOLEAN DEFAULT 1,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
 
 
@@ -258,14 +237,3 @@ INSERT INTO usuarios (nome, login, senha_hash, tipo) VALUES
 ('Dr. João Silva','drjoao','medico123','Medico'),
 ('Maria Santos','maria_enf','enfermeira123','Enfermeiro'),
 ('Paulo Souza','paulo_rec','recepcao123','Recepcao');
-
-alter table medicos add column id_usuario INT NOT NULL;
-
-alter table 
-medicos add constraint fk_medicos_usuarios foreign key (id_usuario) references usuarios(id_usuario);
-
-
-ALTER TABLE medicos DROP FOREIGN KEY medicos_ibfk_1;
-alter table medicos drop COLUMN id_especialidade;
-
-SHOW CREATE TABLE medicos;

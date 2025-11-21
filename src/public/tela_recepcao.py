@@ -3,6 +3,7 @@ from tkinter import messagebox
 from datetime import datetime
 from db import conectar
 from funcoes_tela import abrir_tela_cadastro
+from funcoes_tela import voltar_para_login
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
@@ -235,5 +236,7 @@ def criar_tela_recepcao(nome_usuario):
     footer.grid(row=2, column=0, columnspan=2, sticky="nsew")
     ctk.CTkLabel(footer, text="© Hospi Manager  •  Sistema de demonstração",
                  text_color="white", font=ctk.CTkFont(size=10)).place(x=12, y=6)
+    ctk.CTkButton(footer, text="Sair", fg_color="#AA0000", hover_color="#770000",
+                  command=lambda: voltar_para_login(app)).place(relx=0.92, rely=0.03)
 
     return app

@@ -3,6 +3,7 @@ def criar_tela_medico(nome_usuario):
     from tkinter import messagebox, simpledialog
     from db import conectar
     from datetime import datetime
+    from funcoes_tela import voltar_para_login
 
     ctk.set_appearance_mode("light")
 
@@ -287,7 +288,24 @@ def criar_tela_medico(nome_usuario):
 
     # BOTOES: finalizar e sair
     ctk.CTkButton(paciente_frame, text="Finalizar Atendimento", fg_color=COLORS["blue"], hover_color=COLORS["blue_dark"], command=finalizar_atendimento).pack(pady=(6,12))
-    ctk.CTkButton(app, text="Sair", fg_color="#AA0000", hover_color="#770000", command=app.destroy).place(relx=0.92, rely=0.03)
+    ctk.CTkButton(
+        app,
+        text="Sair",
+        fg_color="#AA0000",
+        hover_color="#770000",
+        command=lambda: voltar_para_login(app)
+    ).place(relx=0.92, rely=0.03)
+
+    # FOOTER (corrigido)
+    footer = ctk.CTkFrame(app, height=30, fg_color=COLORS["blue"])
+    footer.pack(fill="x", side="bottom")  # << CORREÇÃO
+
+    ctk.CTkLabel(
+        footer,
+        text="© Hospi Manager  •  Sistema de demonstração",
+        text_color="white",
+        font=ctk.CTkFont(size=10)
+    ).place(x=12, y=6)
 
     # primeiro carregamento
     atualizar_fila()
