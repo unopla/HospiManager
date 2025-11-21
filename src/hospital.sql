@@ -40,13 +40,13 @@ CREATE TABLE classificacao_urgencia (
 
 INSERT INTO classificacao_urgencia (nome, cor, prioridade) VALUES
 ('Nada urgente','Azul',1),
-('Pouco urgente', 'Verde', 2),
-('Urgente', 'Amarelo', 3),
+('Pouco urgente','Verde',2),
+('Urgente','Amarelo',3),
 ('Muito urgente','Laranja',4),
 ('Emergência','Vermelho',5);
 
 -- ============================================================
--- TABELA: setores (SEM capacidade)
+-- TABELA: setores
 -- ============================================================
 
 CREATE TABLE setores (
@@ -57,25 +57,25 @@ CREATE TABLE setores (
 );
 
 INSERT INTO setores (nome, descricao, localizacao) VALUES
-('Consultório', 'Atendimento clínico geral e diagnósticos iniciais', '1º Andar - Bloco A'),
-('Emergência', 'Atendimento crítico e risco de vida', 'Térreo - Bloco A'),
-('Cirurgia', 'Salas cirúrgicas de pequeno e médio porte', 'Bloco C'),
-('Recuperação Pós-Cirúrgica', 'Sala de recuperação pós-anestésica', 'Bloco C'),
-('Internação', 'Leitos para pacientes internados', 'Bloco F'),
-('Maternidade', 'Atendimento obstétrico e partos', 'Bloco G'),
+('Consultório', 'Atendimento clínico geral', '1º Andar - Bloco A'),
+('Emergência', 'Atendimento crítico', 'Térreo - Bloco A'),
+('Cirurgia', 'Salas cirúrgicas', 'Bloco C'),
+('Recuperação Pós-Cirúrgica', 'Sala de recuperação', 'Bloco C'),
+('Internação', 'Leitos de internação', 'Bloco F'),
+('Maternidade', 'Atendimento obstétrico', 'Bloco G'),
 ('Pediatria', 'Atendimento infantil', 'Bloco H'),
-('UTI', 'Unidade de Terapia Intensiva', 'Bloco D'),
-('Medicação', 'Administração de fármacos e observação', 'Bloco B'),
-('Farmácia', 'Distribuição de medicamentos', 'Bloco B'),
+('UTI', 'Terapia intensiva', 'Bloco D'),
+('Medicação', 'Administração de fármacos', 'Bloco B'),
+('Farmácia', 'Distribuição medicamentos', 'Bloco B'),
 ('Raio-X', 'Exames radiológicos', 'Bloco D'),
-('Laboratório', 'Análises laboratoriais', 'Bloco E'),
+('Laboratório', 'Análises clínicas', 'Bloco E'),
 ('Fisioterapia', 'Reabilitação física', 'Bloco I'),
-('Curativos', 'Tratamento de ferimentos', 'Bloco B'),
-('Recepção de Exames', 'Entrega e apoio para exames', 'Bloco E'),
-('Odontologia', 'Consultório odontológico', 'Bloco J'),
-('Isolamento', 'Pacientes infectocontagiosos', 'Bloco K'),
-('Saúde Mental', 'Atendimento psicológico e psiquiátrico', 'Bloco L'),
-('Observação', 'Área de observação pré-internação', 'Térreo - Bloco A');
+('Curativos', 'Cuidado de ferimentos', 'Bloco B'),
+('Recepção de Exames', 'Entrega de exames', 'Bloco E'),
+('Odontologia', 'Dentista', 'Bloco J'),
+('Isolamento', 'Doenças infectocontagiosas', 'Bloco K'),
+('Saúde Mental', 'Psiquiatria', 'Bloco L'),
+('Observação', 'Pré-internação', 'Térreo - Bloco A');
 
 -- ============================================================
 -- TABELA: especialidades
@@ -103,6 +103,7 @@ INSERT INTO especialidades (especialidade) VALUES
 
 CREATE TABLE medicos (
     id_medico INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
     nome VARCHAR(120) NOT NULL,
     crm VARCHAR(20) NOT NULL UNIQUE,
     id_especialidade INT NOT NULL,
@@ -113,21 +114,23 @@ CREATE TABLE medicos (
     ativo BOOLEAN DEFAULT 1,
     FOREIGN KEY (id_especialidade) REFERENCES especialidades(id_especialidade)
 );
+
 -- ============================================================
--- TABELA: usuarios (PARA LOGIN NO TKINTER)
+-- TABELA: usuarios (Admin, Médico, Enfermeiro, Recepção)
 -- ============================================================
 
 CREATE TABLE usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(120),
+    nome VARCHAR(120) NOT NULL,
     login VARCHAR(50) UNIQUE,
     senha_hash VARCHAR(255),
-    tipo ENUM('Admin', 'Medico', 'Enfermeiro', 'Recepcao')
+    tipo ENUM('Admin','Medico','Enfermeiro','Recepcao') NOT NULL
 );
+
 -- ============================================================
 -- TABELA: triagem
 -- ============================================================
-drop table if exists triagem;
+
 CREATE TABLE triagem (
     id_triagem INT AUTO_INCREMENT PRIMARY KEY,
     id_paciente INT NOT NULL,
@@ -150,7 +153,7 @@ CREATE TABLE triagem (
 );
 
 -- ============================================================
--- TABELA: atendimentos
+-- TABELA: atendimentos (MÉDICO)
 -- ============================================================
 
 CREATE TABLE atendimentos (
@@ -160,17 +163,17 @@ CREATE TABLE atendimentos (
     id_triagem INT NOT NULL,
     diagnostico TEXT,
     conduta TEXT,
-    tipo_atendimento ENUM('Consulta', 'Emergência', 'Internação'),
+    tipo_atendimento ENUM('Consulta','Emergência','Internação'),
     horario_inicio DATETIME DEFAULT CURRENT_TIMESTAMP,
     horario_fim DATETIME,
-    status ENUM('Em andamento', 'Finalizado', 'Cancelado') DEFAULT 'Em andamento',
+    status ENUM('Em andamento','Finalizado','Cancelado') DEFAULT 'Em andamento',
     FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente),
     FOREIGN KEY (id_medico) REFERENCES medicos(id_medico),
     FOREIGN KEY (id_triagem) REFERENCES triagem(id_triagem)
 );
 
 -- ============================================================
--- TABELA: procedimentos
+-- TABELA: procedimentos (Enfermagem / Médico)
 -- ============================================================
 
 CREATE TABLE procedimentos (
@@ -179,12 +182,35 @@ CREATE TABLE procedimentos (
     descricao VARCHAR(255) NOT NULL,
     profissional VARCHAR(120),
     horario DATETIME DEFAULT CURRENT_TIMESTAMP,
-    area ENUM('Enfermagem', 'Médico', 'Cirurgia', 'Outros'),
+    area ENUM('Enfermagem','Médico','Cirurgia','Outros'),
     FOREIGN KEY (id_atendimento) REFERENCES atendimentos(id_atendimento)
+);
+-- ============================================================
+-- TABELA: recepcionistas
+-- ============================================================
+CREATE TABLE recepcionistas (
+    id_recepcionista INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    ativo BOOLEAN DEFAULT 1,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
 
 -- ============================================================
--- TABELA: medicacoes
+-- TABELA: enfermeiros
+-- ============================================================
+
+CREATE TABLE enfermeiros (
+    id_enfermeiro INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    nome VARCHAR(120) NOT NULL,
+    coren VARCHAR(30) UNIQUE,
+    ativo BOOLEAN DEFAULT 1,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+
+-- ============================================================
+-- TABELA: medicações
 -- ============================================================
 
 CREATE TABLE medicacoes (
@@ -192,7 +218,7 @@ CREATE TABLE medicacoes (
     id_atendimento INT NOT NULL,
     nome VARCHAR(100) NOT NULL,
     dosagem VARCHAR(50),
-    via_administracao ENUM('Oral', 'IV', 'IM', 'SC', 'Inalada', 'Outros'),
+    via_administracao ENUM('Oral','IV','IM','SC','Inalada','Outros'),
     intervalo_horas INT,
     observacoes TEXT,
     horario_aplicacao DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -200,7 +226,7 @@ CREATE TABLE medicacoes (
 );
 
 -- ============================================================
--- TABELA: relatorios
+-- TABELA: relatórios
 -- ============================================================
 
 CREATE TABLE relatorios (
@@ -213,7 +239,7 @@ CREATE TABLE relatorios (
 );
 
 -- ============================================================
--- TABELA: logs_sistema
+-- TABELA: logs
 -- ============================================================
 
 CREATE TABLE logs_sistema (
@@ -223,14 +249,23 @@ CREATE TABLE logs_sistema (
     horario DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO usuarios (nome, login, senha_hash, tipo)
-VALUES ('Administrador Geral', 'admin', 'admin123', 'Admin');
+-- ============================================================
+-- USUÁRIOS PADRÃO
+-- ============================================================
 
-INSERT INTO usuarios (nome, login, senha_hash, tipo)
-VALUES ('Dr. João Silva', 'drjoao', 'medico123', 'Medico');
+INSERT INTO usuarios (nome, login, senha_hash, tipo) VALUES
+('Administrador Geral','admin','admin123','Admin'),
+('Dr. João Silva','drjoao','medico123','Medico'),
+('Maria Santos','maria_enf','enfermeira123','Enfermeiro'),
+('Paulo Souza','paulo_rec','recepcao123','Recepcao');
 
-INSERT INTO usuarios (nome, login, senha_hash, tipo)
-VALUES ('Maria Santos', 'maria_enf', 'enfermeira123', 'Enfermeiro');
+alter table medicos add column id_usuario INT NOT NULL;
 
-INSERT INTO usuarios (nome, login, senha_hash, tipo)
-VALUES ('Paulo Souza', 'paulo_rec', 'recepcao123', 'Recepcao');
+alter table 
+medicos add constraint fk_medicos_usuarios foreign key (id_usuario) references usuarios(id_usuario);
+
+
+ALTER TABLE medicos DROP FOREIGN KEY medicos_ibfk_1;
+alter table medicos drop COLUMN id_especialidade;
+
+SHOW CREATE TABLE medicos;
