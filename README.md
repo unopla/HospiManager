@@ -1,83 +1,92 @@
-# HospiManager
-Este projeto é um Sistema Hospitalar completo, desenvolvido para facilitar e modernizar o gerenciamento de hospitais, clínicas e consultórios. A plataforma oferece ferramentas essenciais para agilizar processos internos, melhorar o atendimento ao paciente e garantir mais precisão nas informações médicas.
+HospiManager
+Sistema Hospitalar Desktop desenvolvido em Python + MySQL
 
+O HospiManager é um sistema hospitalar completo voltado para o gerenciamento de pacientes, triagem, atendimento médico e fluxo interno de um hospital.
+O sistema possui interface moderna, criada com CustomTkinter, e integra-se totalmente ao MySQL para armazenamento dos dados.
 
-### 🧮 **PROVA FINAL – PROJETO INTEGRADOR EM PYTHON + MYSQL**
+Funcionalidades Principais
+Autenticação
 
-#### **Tema:** Sistema de Atendimento Hospitalar
+Sistema de login com usuários e cargos (Admin, Médico, Recepção, Enfermeiro)
 
----
+Cada cargo abre automaticamente sua tela correspondente
 
-### 🏥 **Descrição Geral**
+Recepção
 
-Desenvolva um **sistema hospitalar completo** em **Python** com integração a **MySQL**, que permita gerenciar o fluxo de pacientes desde a chegada até a liberação médica.
-O sistema deve conter:
+Cadastro de pacientes
 
-* **Triagem** (verificação de sinais vitais e sintomas);
-* **Classificação de urgência** (*Nada Urgente, Pouco Urgente, Urgente, Risco de Vida*);
-* **Encaminhamento automático** à área correspondente (*Cirurgia, Consultório, Medicação, Curativos*);
-* **Registro de entrada e saída** (horário de chegada e de liberação);
-* **Cadastro médico com CRM** e registro dos **procedimentos e medicações aplicadas**;
-* **Geração de laudo final (relatório)** com todas as informações do atendimento.
+Edição de informações
 
----
+Consulta rápida
 
-### 🧱 **Requisitos Técnicos**
+Organização da fila de atendimento
 
-1. **O banco de dados (`hospital.sql`) será fornecido pelo professor.**
+Enfermeiro – Triagem
 
-   * O aluno deve importar o script em seu servidor local MySQL.
-   * O arquivo contém todas as tabelas necessárias para o funcionamento do sistema.
+Sinais vitais
 
-2. **Você deverá criar seus próprios arquivos Python**, incluindo, no mínimo:
+Sintomas
 
-   * `db.py` → conexão e funções básicas de interação com o banco;
-   * `main.py` → tela inicial e fluxo principal;
-   * `triagem.py`, `medico.py`, `relatorio.py` (ou nomes equivalentes) → módulos específicos;
-   * `creditos.txt` → listagem das fontes de imagens e ícones utilizados;
-   * `documentacao.pdf` → explicação técnica do sistema e bibliotecas utilizadas;
-   * `manual_usuario.pdf` → explicação do uso do sistema para o público final.
+Classificação automática de risco
 
-3. **O sistema deve possuir interface gráfica** (em Python, por exemplo usando `tkinter`), e **não interface web**.
+Médico
 
-4. **As imagens utilizadas (ícones, logotipo, etc.) devem ser retiradas exclusivamente de:**
+Visualização da fila
 
-   * [Flaticon](https://www.flaticon.com/)
-   * [Pexels](https://www.pexels.com/pt-br/)
-   * [Pixabay](https://pixabay.com/pt/)
-   * [Unsplash](https://unsplash.com/pt-br)
+Abertura da ficha do paciente
 
-5. É obrigatório citar as fontes das imagens:
+Registro de procedimentos
 
-   * No arquivo `creditos.txt`;
-   * E novamente na **documentação técnica** do sistema (mas **não no manual do usuário**).
+Registro de medicações e evolução médica
 
-6. O sistema deve ser **compilado para executável (.exe)**, para que possa ser testdo diretamente.
+Fluxo Completo do Paciente
 
+Cadastro (Recepção)
 
-* **Estrutura esperada do sistema de vocês:**
+Triagem (Enfermeiro)
 
-  ```
-  /PROVA_PY_GRUPO_NOMEAL1_NOMEAL2_NOMEAL3/
-      ├── PROVA_Final_PY/
-      │   ├── hospital.sql
-      │   ├── db.py
-      │   ├── main.py
-      │   ├── creditos.txt
-      │   ├── documentacao.pdf
-      │   ├── manual_usuario.pdf
-      │   ├── /imagens/
-      │   ├── /dist/ (contendo o executável)
-      │   └── ...
-  ```
+Atendimento (Médico)
 
-* **Trabalho em grupo:** até **4 alunos**.
+Finalização e liberação
 
-* **Tempo de execução:** **2 dias de aula (8 horas no total)**.
+Estrutura do Projeto
+HospiManager/
+│
+├── src/
+│   ├── main.py
+│   ├── db.py
+│   ├── funcoes_tela.py
+│   ├── public/
+│   │   ├── tela_login.py
+│   │   ├── tela_recepcao.py
+│   │   ├── tela_medico.py
+│   │   ├── tela_enfermeira.py
+│   │   └── ...
+│   ├── imagens/
+│   └── assets/
+│
+├── README.md
+└── requirements.txt
 
-* **Avaliação:** Funcionamento, documentação, clareza da interface e organização do código.
+Tecnologias Utilizadas
+Tecnologia	Uso
+Python 3	Lógica principal do sistema
+CustomTkinter	Interface gráfica moderna
+Tkinter	Estrutura visual base
+MySQL	Banco de dados
+Pillow (PIL)	Manipulação de imagens
+mysql-connector-python	Conexão com banco
+Instalação
+Instalar dependências
+pip install -r requirements.txt
 
----
-## Entrega
-* Todos os arquivos, pastas do projeto deverão estar em um único arquivo compactado (RAR, ZIP, 7Z, ARJ, etc) com o nome padrão de arquivo: PROVA_PY_GRUPO_NOMEAL1_NOMEAL2_NOMEAL3.*
-* Este arquivo deve ser colocado em uma pasta no FTP e informar o professor quem entregou o a prova no nome do grupo.
+Desenvolvedores
+
+Projeto desenvolvido por:
+Kelvin Adam Arcari
+Gabriel Zarpelon Nascimento
+Mateus Quevedo Marafon
+Matheus Antonio Pereira Girelli
+
+Licença
+Este projeto é de uso educacional para fins da Prova Final – Python + MySQL.

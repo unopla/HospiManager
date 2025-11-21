@@ -1,1 +1,0 @@
-Aqui vai licensa, se decidam oq botar
